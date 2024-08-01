@@ -1,6 +1,6 @@
-# RK3588-ESP32 Communication
+# RK3588-STM32 Communication
 
-This repository contains code for a simple TCP client-server communication setup between an RK3588 running Ubuntu and an ESP32 microcontroller. The RK3588 acts as both the server and client, facilitating communication with the ESP32.
+This repository contains code for a simple TCP client-server communication setup between an RK3588 running Ubuntu and an STM32 microcontroller. The RK3588 acts as both the server and client, facilitating communication with the STM32.
 
 ## Table of Contents
 
@@ -14,14 +14,14 @@ This repository contains code for a simple TCP client-server communication setup
 
 ## Overview
 
-This project demonstrates a basic TCP client-server communication setup. The RK3588 runs a program that can act as both a client and a server to communicate with an ESP32 microcontroller over a TCP connection.
+This project demonstrates a basic TCP client-server communication setup. The RK3588 runs a program that can act as both a client and a server to communicate with an STM32 microcontroller over a TCP connection.
 
 ## Features
 
 - **TCP Server**: Listens for incoming connections and echoes received messages.
 - **TCP Client**: Connects to a server and sends messages.
 - **Cross-Compilation**: Supports cross-compilation for ARM architectures.
-- **Simple Communication Protocol**: Sends and receives messages between the RK3588 and ESP32.
+- **Simple Communication Protocol**: Sends and receives messages between the RK3588 and STM32.
 
 ## Setup
 
@@ -30,13 +30,13 @@ This project demonstrates a basic TCP client-server communication setup. The RK3
 - GCC Compiler
 - Make
 - Ubuntu running on RK3588
-- ESP32 Microcontroller
-- Network setup to allow communication between RK3588 and ESP32
+- STM32 Microcontroller
+- Network setup to allow communication between RK3588 and STM32
 
 ### Directory Structure
 
 ```
-rk3588-esp32-comm/
+rk3588-STM32-comm/
 ├── src/
 │   ├── core/
 │   │   ├── main.c
@@ -59,8 +59,8 @@ rk3588-esp32-comm/
 1. **Clone the repository**
 
    ```
-   git clone https://github.com/yourusername/rk3588-esp32-comm.git
-   cd rk3588-esp32-comm
+   git clone git@github.com:openembed-labs/rk3588-STM32-comm.git
+   cd rk3588-STM32-comm
    ```
 
 2. **Build the programs**
