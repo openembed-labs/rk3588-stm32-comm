@@ -15,7 +15,7 @@ sleep 2
 # Start the client
 echo "Starting client program..."
 ./build/client_program $SERVER_ADDRESS $SERVER_PORT <<EOF
-Hello, server!
+----------Hello, server!------------
 quit
 EOF
 
@@ -24,4 +24,4 @@ echo "Stopping server program..."
 kill $SERVER_PID
 wait $SERVER_PID 2>/dev/null
 
-echo "Success!"
+echo "Done!"

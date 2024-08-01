@@ -1,42 +1,56 @@
-# 设置交叉编译工具链
+# Set the cross-compilation toolchain
 # CC = arm-linux-gnueabihf-gcc
 CC = gcc
-CFLAGS = -Wall
+CFLAGS = -Wall -I./src/inc
 LDFLAGS =
 
-# 定义源文件和目标文件
-MAIN_SRC = src/core/main.c
-MAIN_OBJ = build/main.o
-MAIN_TARGET = build/client_program
+# Define source directories
+SRC_DIR_CORE = src/core
+SRC_DIR_TEST = src/test
+BUILD_DIR = build
 
-SERVER_SRC = src/test/server.c
-SERVER_OBJ = build/server.o
-SERVER_TARGET = build/server_program
+# Define source files
+CLIENT_SRC = $(SRC_DIR_CORE)/client.c
+MAIN_SRC = $(SRC_DIR_CORE)/main.c
+SERVER_SRC = $(SRC_DIR_TEST)/server.c
 
-# 默认目标
-all: $(MAIN_TARGET) $(SERVER_TARGET)
+# Define object files
+CLIENT_OBJ = $(BUILD_DIR)/client.o
+MAIN_OBJ = $(BUILD_DIR)/main.o
+SERVER_OBJ = $(BUILD_DIR)/server.o
 
-# 生成 main 程序的可执行文件
-$(MAIN_TARGET): $(MAIN_OBJ)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(MAIN_OBJ)
+# Define targets
+CLIENT_PROGRAM = $(BUILD_DIR)/client_program
+SERVER_PROGRAM = $(BUILD_DIR)/server_program
 
-# 编译 main 程序的源文件生成目标文件
-$(MAIN_OBJ): $(MAIN_SRC)
-	mkdir -p build
-	$(CC) $(CFLAGS) -c -o $@ $<
+# Default target
+all: $(CLIENT_PROGRAM) $(SERVER_PROGRAM)
 
-# 生成 server 程序的可执行文件
-$(SERVER_TARGET): $(SERVER_OBJ)
+# Build client program
+$(CLIENT_PROGRAM): $(MAIN_OBJ) $(CLIENT_OBJ)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(MAIN_OBJ) $(CLIENT_OBJ)
+
+# Build server program
+$(SERVER_PROGRAM): $(SERVER_OBJ)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(SERVER_OBJ)
 
-# 编译 server 程序的源文件生成目标文件
-$(SERVER_OBJ): $(SERVER_SRC)
-	mkdir -p build
+# Compile main program's source files to object files
+$(BUILD_DIR)/main.o: $(MAIN_SRC)
+	mkdir -p $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-# 清理生成的文件
-clean:
-	rm -f build/*
+$(BUILD_DIR)/client.o: $(CLIENT_SRC)
+	mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-# 伪目标
+# Compile server program's source file to object file
+$(BUILD_DIR)/server.o: $(SERVER_SRC)
+	mkdir -p $(BUILD_DIR)
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+# Clean up build files
+clean:
+	rm -f $(BUILD_DIR)/*
+
+# Phony targets
 .PHONY: all clean
