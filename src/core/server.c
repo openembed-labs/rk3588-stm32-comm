@@ -5,24 +5,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "server.h"
 
-#define MAX_PADDING 10
-#define MAX_LINE 256
-
-#define DEFAULT_ADDRESS "0.0.0.0" // Default to bind all network interfaces
-#define DEFAULT_PORT 5000         // Default port number
-
-int main(int argc, char *argv[])
+void run_server(const char *address, int port)
 {
     int s_fd, c_fd;
     char buf[MAX_LINE];
     struct sockaddr_in server_addr, client_addr;
     socklen_t len;          // Use socklen_t instead of int
     ssize_t bytes_received; // Use ssize_t to receive return values
-
-    // Use default values
-    const char *address = (argc > 1) ? argv[1] : DEFAULT_ADDRESS;
-    int port = (argc > 2) ? atoi(argv[2]) : DEFAULT_PORT;
 
     s_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (s_fd == -1)
@@ -94,5 +85,4 @@ int main(int argc, char *argv[])
     }
 
     close(s_fd);
-    return 0;
 }
