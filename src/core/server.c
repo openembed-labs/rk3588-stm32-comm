@@ -68,7 +68,18 @@ void run_server(const char *address, int port)
                 buf[bytes_received] = '\0';
                 printf("Received message: %s", buf);
 
+                // Echo the received message back to the client
                 if (send(c_fd, buf, bytes_received, 0) == -1)
+                {
+                    perror("Send error");
+                    close(c_fd);
+                    close(s_fd);
+                    exit(1);
+                }
+
+                // Send a custom response message to the client
+                const char *response = "Message received and processed by server\n";
+                if (send(c_fd, response, strlen(response), 0) == -1)
                 {
                     perror("Send error");
                     close(c_fd);
