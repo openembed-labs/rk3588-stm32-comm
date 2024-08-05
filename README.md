@@ -33,25 +33,6 @@ This project demonstrates a basic TCP client-server communication setup. The RK3
 - STM32 Microcontroller
 - Network setup to allow communication between RK3588 and STM32
 
-### Directory Structure
-
-```
-rk3588-STM32-comm/
-├── src/
-│   ├── core/
-│   │   ├── main.c
-│   │   ├── client.c
-│   │   ├── server.c
-│   ├── inc/
-│   │   ├── client.h
-│   │   ├── server.h
-├── build/
-├── cross_build/
-├── Makefile
-├── README.md
-└── test_script.sh
-```
-
 ## Usage
 
 ### Building and Running
@@ -98,8 +79,23 @@ A test script is provided to automate the process of starting the server and cli
 2. **Run the script**
 
    ```
-   ./tes.sh
+   ./test.sh
    ```
+
+## Daemonize & Log
+```shell
+ps aux | grep combined_program
+```
+
+kill
+```shell
+pkill combined_program # kill 339504
+```
+
+Log
+```shell
+sudo journalctl -t mydaemon
+```
 
 ## License
 

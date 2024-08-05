@@ -1,8 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <syslog.h>
 #include "client.h"
 #include "server.h"
+#include "daemonize.h"
 
 int main(int argc, char *argv[])
 {
@@ -25,19 +27,27 @@ int main(int argc, char *argv[])
         port = atoi(argv[3]);
     }
 
+    // 使程序成为守护进程
+    daemonize();
+
     if (strcmp(argv[1], "server") == 0)
     {
+        syslog(LOG_INFO, "Starting server at %s:%d", server_address, port);
         run_server(server_address, port);
     }
     else if (strcmp(argv[1], "client") == 0)
     {
+        syslog(LOG_INFO, "Starting client to connect to %s:%d", server_address, port);
         run_client(server_address, port);
     }
     else
     {
-        fprintf(stderr, "Invalid mode. Use 'server' or 'client'.\n");
+        syslog(LOG_ERR, "Invalid mode. Use 'server' or 'client'.");
         exit(EXIT_FAILURE);
     }
+
+    // 关闭系统日志
+    closelog();
 
     return 0;
 }
