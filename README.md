@@ -61,7 +61,7 @@ This project demonstrates a basic TCP client-server communication setup. The RK3
    In another terminal, run the client program:
 
    ```
-   ./build/client_program <server_address> <port>
+   ./build/client_program <server_address> <port> [--daemon]
    ```
 
 ## Testing

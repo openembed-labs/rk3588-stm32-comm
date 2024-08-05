@@ -10,25 +10,50 @@ int main(int argc, char *argv[])
 {
     const char *server_address = DEFAULT_SERVER_ADDRESS;
     int port = DEFAULT_PORT;
+    int run_as_daemon = 0;
 
-    if (argc < 2 || argc > 4)
+    if (argc < 2 || argc > 5)
     {
-        fprintf(stderr, "Usage: %s <mode> [<server_address> <port>]\n", argv[0]);
+        fprintf(stderr, "Usage: %s <mode> [<server_address> <port>] [--daemon]\n", argv[0]);
         fprintf(stderr, "mode: 'server' or 'client'\n");
         exit(EXIT_FAILURE);
     }
 
-    if (argc >= 3)
+    for (int i = 1; i < argc; i++)
     {
-        server_address = argv[2];
-    }
-    if (argc == 4)
-    {
-        port = atoi(argv[3]);
+        if (strcmp(argv[i], "--daemon") == 0)
+        {
+            run_as_daemon = 1;
+        }
+        else if (i == 1)
+        {
+            // 第一参数是模式
+            if (strcmp(argv[i], "server") != 0 && strcmp(argv[i], "client") != 0)
+            {
+                fprintf(stderr, "Invalid mode. Use 'server' or 'client'.\n");
+                exit(EXIT_FAILURE);
+            }
+        }
+        else if (i == 2)
+        {
+            // 第二参数是服务器地址
+            server_address = argv[i];
+        }
+        else if (i == 3)
+        {
+            // 第三参数是端口号
+            port = atoi(argv[i]);
+        }
     }
 
-    // 使程序成为守护进程
-    daemonize();
+    // 如果选项中包含 --daemon，则将程序变成守护进程
+    if (run_as_daemon)
+    {
+        daemonize();
+    }
+
+    // 打开系统日志
+    openlog("mydaemon", LOG_PID, LOG_DAEMON);
 
     if (strcmp(argv[1], "server") == 0)
     {
