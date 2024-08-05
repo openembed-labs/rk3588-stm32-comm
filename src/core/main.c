@@ -5,10 +5,11 @@
 #include "client.h"
 #include "server.h"
 #include "daemonize.h"
+#include "logger.h"
 
 int main(int argc, char *argv[])
 {
-    const char *server_address = DEFAULT_SERVER_ADDRESS;
+    const char *server_address = DEFAULT_ADDRESS;
     int port = DEFAULT_PORT;
     int run_as_daemon = 0;
 
@@ -50,6 +51,11 @@ int main(int argc, char *argv[])
     if (run_as_daemon)
     {
         daemonize();
+        set_log_mode(LOG_MODE_SYSLOG);
+    }
+    else
+    {
+        set_log_mode(LOG_MODE_CONSOLE);
     }
 
     // 打开系统日志
@@ -57,17 +63,17 @@ int main(int argc, char *argv[])
 
     if (strcmp(argv[1], "server") == 0)
     {
-        syslog(LOG_INFO, "Starting server at %s:%d", server_address, port);
+        log_info("Starting server at %s:%d", server_address, port);
         run_server(server_address, port);
     }
     else if (strcmp(argv[1], "client") == 0)
     {
-        syslog(LOG_INFO, "Starting client to connect to %s:%d", server_address, port);
+        log_info("Starting client to connect to %s:%d", server_address, port);
         run_client(server_address, port);
     }
     else
     {
-        syslog(LOG_ERR, "Invalid mode. Use 'server' or 'client'.");
+        log_error("Invalid mode. Use 'server' or 'client'.");
         exit(EXIT_FAILURE);
     }
 

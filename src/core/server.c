@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "server.h"
+#include "logger.h"
 
 void run_server(const char *address, int port)
 {
@@ -18,7 +19,7 @@ void run_server(const char *address, int port)
     s_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (s_fd == -1)
     {
-        perror("Socket error");
+        log_error("Socket error");
         exit(1);
     }
 
@@ -27,24 +28,24 @@ void run_server(const char *address, int port)
     server_addr.sin_addr.s_addr = inet_addr(address);
     server_addr.sin_port = htons(port);
 
-    printf("Server address: %s:%d\n", address, port);
+    log_info("Server address: %s:%d", address, port);
 
     int status = bind(s_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
     if (status == -1)
     {
-        perror("Bind error");
+        log_error("Bind error");
         close(s_fd);
         exit(1);
     }
 
     if (listen(s_fd, MAX_PADDING) == -1)
     {
-        perror("Listen error");
+        log_error("Listen error");
         close(s_fd);
         exit(1);
     }
 
-    printf("Server waiting for connection on port: %d...\n", port);
+    log_info("Server waiting for connection on port: %d...", port);
 
     while (1)
     {
@@ -53,12 +54,12 @@ void run_server(const char *address, int port)
         c_fd = accept(s_fd, (struct sockaddr *)&client_addr, &len);
         if (c_fd == -1)
         {
-            perror("Accept error");
+            log_error("Accept error");
             close(s_fd);
             exit(1);
         }
 
-        printf("Connection established with client address: %s, port: %d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+        log_info("Connection established with client address: %s, port: %d", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
 
         while (1)
         {
@@ -66,12 +67,12 @@ void run_server(const char *address, int port)
             if (bytes_received > 0)
             {
                 buf[bytes_received] = '\0';
-                printf("Received message: %s", buf);
+                log_info("Received message: %s", buf);
 
                 // Echo the received message back to the client
                 if (send(c_fd, buf, bytes_received, 0) == -1)
                 {
-                    perror("Send error");
+                    log_error("Send error");
                     close(c_fd);
                     close(s_fd);
                     exit(1);
@@ -81,7 +82,7 @@ void run_server(const char *address, int port)
                 const char *response = "Message received and processed by server\n";
                 if (send(c_fd, response, strlen(response), 0) == -1)
                 {
-                    perror("Send error");
+                    log_error("Send error");
                     close(c_fd);
                     close(s_fd);
                     exit(1);
@@ -89,7 +90,7 @@ void run_server(const char *address, int port)
             }
             else if (bytes_received == -1)
             {
-                perror("Receive error");
+                log_error("Receive error");
                 exit(EXIT_FAILURE);
             }
         }

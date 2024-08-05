@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "client.h"
+#include "logger.h"
 
 void run_client(const char *server_address, int port)
 {
@@ -16,7 +17,7 @@ void run_client(const char *server_address, int port)
 
     if ((c_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
-        perror("Socket error");
+        log_error("Socket error");
         exit(1);
     }
 
@@ -28,12 +29,12 @@ void run_client(const char *server_address, int port)
     int status = connect(c_fd, (struct sockaddr *)&client_addr, sizeof(client_addr));
     if (status == -1)
     {
-        perror("Connect error");
+        log_error("Connect error");
         close(c_fd);
         exit(1);
     }
 
-    printf("Connected to server %s on port %d\n", server_address, port);
+    log_info("Connected to server %s on port %d", server_address, port);
 
     while (1)
     {
@@ -46,22 +47,22 @@ void run_client(const char *server_address, int port)
         bytes_sent = send(c_fd, buf, strlen(buf), 0);
         if (bytes_sent == -1)
         {
-            perror("Send error");
+            log_error("Send error");
             close(c_fd);
             exit(1);
         }
-        printf("Sent %d bytes to server\n", bytes_sent);
+        log_info("Sent %d bytes to server", bytes_sent);
 
         len = recv(c_fd, buf, MAX_LINE - 1, 0);
         if (len == -1)
         {
-            perror("Receive error");
+            log_error("Receive error");
             close(c_fd);
             exit(EXIT_FAILURE);
         }
 
         buf[len] = '\0';
-        printf("Received reply from server: %s", buf);
+        log_info("Received reply from server: %s", buf);
     }
 
     close(c_fd);
