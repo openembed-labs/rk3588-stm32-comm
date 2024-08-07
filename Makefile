@@ -20,19 +20,20 @@ OBJS = $(patsubst $(SRC_DIR_CORE)/%.c,$(BUILD_DIR)/%.o,$(SRCS))
 CROSS_OBJS = $(patsubst $(SRC_DIR_CORE)/%.c,$(CROSS_BUILD_DIR)/%.o,$(SRCS))
 
 # Define targets
-COMBINED_PROGRAM = $(BUILD_DIR)/combined_program
-CROSS_COMBINED_PROGRAM = $(CROSS_BUILD_DIR)/combined_program
+TARGET = combined_program
+TARGET_PROGRAM = $(BUILD_DIR)/${TARGET}
+CROSS_TARGET_PROGRAM = $(CROSS_BUILD_DIR)/${TARGET}
 
 # Default target
-all: $(COMBINED_PROGRAM) $(CROSS_COMBINED_PROGRAM)
+all: $(TARGET_PROGRAM) $(CROSS_TARGET_PROGRAM)
 
 # Build combined program
-$(COMBINED_PROGRAM): $(OBJS)
+$(TARGET_PROGRAM): $(OBJS)
 	@echo "Building default combined program..."
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $(OBJS)
 
 # Cross-compile combined program
-$(CROSS_COMBINED_PROGRAM): $(CROSS_OBJS)
+$(CROSS_TARGET_PROGRAM): $(CROSS_OBJS)
 	@echo "Building cross-compiled combined program..."
 	$(CROSS_CC) $(CROSS_CFLAGS) $(CROSS_LDFLAGS) -o $@ $(CROSS_OBJS)
 

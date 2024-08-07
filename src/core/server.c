@@ -77,20 +77,18 @@ void run_server(const char *address, int port)
                     close(s_fd);
                     exit(1);
                 }
-
-                // Send a custom response message to the client
-                const char *response = "Message received and processed by server\n";
-                if (send(c_fd, response, strlen(response), 0) == -1)
-                {
-                    log_error("Send error");
-                    close(c_fd);
-                    close(s_fd);
-                    exit(1);
-                }
+            }
+            else if (bytes_received == 0)
+            {
+                log_info("Client disconnected");
+                close(c_fd);
+                break;
             }
             else if (bytes_received == -1)
             {
                 log_error("Receive error");
+                close(c_fd);
+                close(s_fd);
                 exit(EXIT_FAILURE);
             }
         }
