@@ -52,8 +52,8 @@ $(CROSS_BUILD_DIR)/%.o: $(SRC_DIR_CORE)/%.c
 # Clean up build files
 clean:
 	@echo "Cleaning build directories..."
-	rm -f $(BUILD_DIR)/*
-	rm -f $(CROSS_BUILD_DIR)/*
+	rm -rf $(BUILD_DIR)
+	rm -rf $(CROSS_BUILD_DIR)
 
 # Phony targets
 .PHONY: all clean

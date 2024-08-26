@@ -11,10 +11,10 @@
 void run_server(const char *address, int port)
 {
     int s_fd, c_fd;
-    char buf[MAX_LINE];
+    char buf[MAX_LINE + 1];
     struct sockaddr_in server_addr, client_addr;
-    socklen_t len;          // Use socklen_t instead of int
-    ssize_t bytes_received; // Use ssize_t to receive return values
+    socklen_t len;
+    ssize_t bytes_received;
 
     s_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (s_fd == -1)
@@ -63,6 +63,17 @@ void run_server(const char *address, int port)
 
         while (1)
         {
+            // 发送数据给客户端
+            const char *message = "Hello from server!";
+            if (send(c_fd, message, strlen(message), 0) == -1)
+            {
+                log_error("Send error");
+                close(c_fd);
+                close(s_fd);
+                exit(1);
+            }
+
+            // 接收客户端消息
             bytes_received = recv(c_fd, buf, MAX_LINE, 0);
             if (bytes_received > 0)
             {
@@ -91,6 +102,9 @@ void run_server(const char *address, int port)
                 close(s_fd);
                 exit(EXIT_FAILURE);
             }
+
+            // 暂停一段时间
+            usleep(500000); // 500ms
         }
     }
 

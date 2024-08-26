@@ -1,4 +1,3 @@
-// daemonize.h
 #ifndef DAEMONIZE_H
 #define DAEMONIZE_H
 
