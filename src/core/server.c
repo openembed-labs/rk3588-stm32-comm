@@ -8,6 +8,7 @@
 #include "server.h"
 #include "logger.h"
 #include "di_data.h"
+#include "common.h"
 
 void run_server(const char *address, int port)
 {
@@ -17,10 +18,21 @@ void run_server(const char *address, int port)
     socklen_t len;
     ssize_t bytes_received;
 
+    DI_Data di_data;
+
     s_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (s_fd == -1)
     {
         log_error("Socket creation error");
+        exit(1);
+    }
+
+    // 设置 SO_REUSEADDR 套接字选项
+    int opt = 1;
+    if (setsockopt(s_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) == -1)
+    {
+        log_error("setsockopt error");
+        close(s_fd);
         exit(1);
     }
 
@@ -79,14 +91,32 @@ void run_server(const char *address, int port)
             // 接收客户端消息
             bytes_received = recv(c_fd, buf, MAX_LINE, 0);
 
-            printf("The bytes_received is: %zu\n", bytes_received);
-            printf("Received data (buf as string): %s \n", buf);
-            printf("Received data (hex): \n");
-            print_hex(buf, bytes_received);
+            // 打印设备号
+            unsigned short device_id = buf[0];
+            log_info("\nDevice ID: %02X", device_id); // 十六进制格式打印设备号
 
+            printf("Received data (hex): ");
+            print_hex(buf, bytes_received);
+            // printf("Received data (buf as string): %s \n", buf);
+
+            if (device_id == DEVICE_DI)
+            {
+                handle_device_DI(buf, bytes_received, &di_data);
+            }
+            else
+            {
+                // 打印设备号后的数据
+                printf("Data following device ID (string): ");
+                size_t data_length = bytes_received - 1;
+                buf[1 + data_length] = (data_length < sizeof(buf) - 1) ? '\0' : buf[sizeof(buf) - 1];
+                printf("%s\n", (char *)(buf + 1));
+            }
+
+            printf("Finished printing hex data. Total length: %zu\n", bytes_received);
             // 暂停一段时间
             usleep(5000); // 5ms
         }
+        close(c_fd);
     }
 
     close(s_fd);

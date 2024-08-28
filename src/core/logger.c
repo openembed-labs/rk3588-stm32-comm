@@ -61,6 +61,12 @@ void print_hex(const unsigned char *buf, size_t length)
     }
 
     printf("\n");
+}
 
-    printf("Finished printing hex data. Total length: %zu\n", length);
+void print_binary(unsigned char byte)
+{
+    for (int i = 7; i >= 0; i--)
+    {
+        printf("%d", (byte >> i) & 1);
+    }
 }

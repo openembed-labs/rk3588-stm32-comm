@@ -2,7 +2,9 @@
     "files.associations": {
         "client.h": "c",
         "server.h": "c",
+        "di_data.h": "c",
         "stdarg.h": "c",
-        "logger.h": "c"
+        "logger.h": "c",
+        "common.h": "c"
     }
 }
