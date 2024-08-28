@@ -64,12 +64,12 @@ int main(int argc, char *argv[])
     if (strcmp(argv[1], "server") == 0)
     {
         log_info("Starting server at %s:%d", server_address, port);
-        run_server(server_address, port);
+        server_main(server_address, port);
     }
     else if (strcmp(argv[1], "client") == 0)
     {
         log_info("Starting client to connect to %s:%d", server_address, port);
-        run_client(server_address, port);
+        client_main(server_address, port);
     }
     else
     {

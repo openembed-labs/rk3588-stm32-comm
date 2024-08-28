@@ -8,7 +8,7 @@
 #include "client.h"
 #include "logger.h"
 
-void run_client(const char *server_address, int port)
+void client_main(const char *server_address, int port)
 {
     int c_fd;
     char buf[MAX_LINE];

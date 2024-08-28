@@ -6,6 +6,6 @@
 #define DEFAULT_ADDRESS "0.0.0.0" // Default to bind all network interfaces
 #define DEFAULT_PORT 5000         // Default port number
 
-void run_server(const char *address, int port);
+void server_main(const char *address, int port);
 
 #endif
