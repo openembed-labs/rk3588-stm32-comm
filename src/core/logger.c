@@ -51,3 +51,16 @@ void log_error(const char *fmt, ...)
 
     va_end(args);
 }
+
+void print_hex(const unsigned char *buf, size_t length)
+{
+
+    for (size_t i = 0; i < length; i++)
+    {
+        printf("%02X ", buf[i]);
+    }
+
+    printf("\n");
+
+    printf("Finished printing hex data. Total length: %zu\n", length);
+}

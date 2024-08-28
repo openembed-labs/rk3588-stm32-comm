@@ -55,13 +55,13 @@ This project demonstrates a basic TCP client-server communication setup. The RK3
    First, start the server program:
 
    ```
-   ./build/server_program
+   ./build/combined_program
    ```
 
    In another terminal, run the client program:
 
    ```
-   ./build/client_program <server_address> <port> [--daemon]
+   ./build/combined_program <server_address> <port> [--daemon]
    ```
 
 ## Testing

@@ -7,11 +7,12 @@
 #include <unistd.h>
 #include "server.h"
 #include "logger.h"
+#include "di_data.h"
 
 void run_server(const char *address, int port)
 {
     int s_fd, c_fd;
-    char buf[MAX_LINE + 1];
+    unsigned char buf[MAX_LINE];
     struct sockaddr_in server_addr, client_addr;
     socklen_t len;
     ssize_t bytes_received;
@@ -19,7 +20,7 @@ void run_server(const char *address, int port)
     s_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (s_fd == -1)
     {
-        log_error("Socket error");
+        log_error("Socket creation error");
         exit(1);
     }
 
@@ -63,48 +64,28 @@ void run_server(const char *address, int port)
 
         while (1)
         {
-            // 发送数据给客户端
-            const char *message = "Hello from server!";
-            if (send(c_fd, message, strlen(message), 0) == -1)
-            {
-                log_error("Send error");
-                close(c_fd);
-                close(s_fd);
-                exit(1);
-            }
+            // // 发送数据给客户端
+            // const char *message = "Hello from server!";
+            // if (send(c_fd, message, strlen(message), 0) == -1)
+            // {
+            //     log_error("Send error");
+            //     close(c_fd);
+            //     break; // 断开连接后，退出当前连接处理循环
+            // }
+
+            // 清空缓冲区
+            memset(buf, 0, sizeof(buf));
 
             // 接收客户端消息
             bytes_received = recv(c_fd, buf, MAX_LINE, 0);
-            if (bytes_received > 0)
-            {
-                buf[bytes_received] = '\0';
-                log_info("Received message: %s", buf);
 
-                // Echo the received message back to the client
-                if (send(c_fd, buf, bytes_received, 0) == -1)
-                {
-                    log_error("Send error");
-                    close(c_fd);
-                    close(s_fd);
-                    exit(1);
-                }
-            }
-            else if (bytes_received == 0)
-            {
-                log_info("Client disconnected");
-                close(c_fd);
-                break;
-            }
-            else if (bytes_received == -1)
-            {
-                log_error("Receive error");
-                close(c_fd);
-                close(s_fd);
-                exit(EXIT_FAILURE);
-            }
+            printf("The bytes_received is: %zu\n", bytes_received);
+            printf("Received data (buf as string): %s \n", buf);
+            printf("Received data (hex): \n");
+            print_hex(buf, bytes_received);
 
             // 暂停一段时间
-            usleep(500000); // 500ms
+            usleep(5000); // 5ms
         }
     }
 
