@@ -1,16 +1,18 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define DEVICE_RS485_1 1
-#define DEVICE_RS485_2 2
-#define DEVICE_RS485_3 3
-#define DEVICE_RS485_4 4
+#define DEVICE_RS485_1 0x01
+#define DEVICE_RS485_2 0x02
+#define DEVICE_RS485_3 0x03
+#define DEVICE_RS485_4 0x04
 
-#define DEVICE_RS232_1 5
-#define DEVICE_RS232_2 6
+#define DEVICE_RS232_1 0x05
+#define DEVICE_RS232_2 0x06
 
-#define DEVICE_CAN_1 7
-#define DEVICE_CAN_2 8
+#define DEVICE_CAN_1 0x07
+#define DEVICE_CAN_2 0x08
+
 #define DEVICE_DI 0x09
+#define DEVICE_DO 0x0A
 
 #endif

@@ -8,6 +8,7 @@
 #include "common.h"
 #include "server.h"
 #include "server_recv_send.h"
+#include "send_test_data.h"
 
 #define SEND_RETRY_LIMIT 3 // Max number of retries if sending fails
 
@@ -17,7 +18,7 @@ typedef struct
     int client_fd;
     pthread_mutex_t mutex;
     char response[256];
-    int send_ready;
+    int send_ready; // 限制为收到数据处理后才能发送数据 如不需要可去除限制
 } ThreadData;
 
 void *recv_thread(void *arg);
@@ -144,6 +145,7 @@ void *send_thread(void *arg)
         {
             // 数据准备完毕，调用构造函数发送数据
             construct_and_send_data(data->client_fd);
+            send_test_data(data->client_fd);
 
             // 更新状态
             data->send_ready = 0;
