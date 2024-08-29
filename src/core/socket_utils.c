@@ -8,7 +8,7 @@
 #include "server.h"
 #include "logger.h"
 #include "socket_utils.h"
-#include "client_management.h"
+#include "server_recv_send.h"
 
 void setup_server_socket(int *s_fd, const char *address, int port)
 {
@@ -81,7 +81,7 @@ void accept_connections(int s_fd)
         else if (pid == 0)
         {
             close(s_fd); // Close listening socket in child process
-            handle_client(c_fd);
+            server_recv_send(c_fd);
             exit(0);
         }
         else

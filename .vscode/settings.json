@@ -5,6 +5,8 @@
         "di_data.h": "c",
         "stdarg.h": "c",
         "logger.h": "c",
-        "common.h": "c"
+        "common.h": "c",
+        "client_handler.h": "c",
+        "server_recv_send.h": "c"
     }
 }
