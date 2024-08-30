@@ -1,7 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#define MODE_TEST 1 // 测试模式
+extern int MODE_SEND_TEST;
+extern int MODE_RECV_TEST;
 
 #define DEVICE_RS485_1 0x01
 #define DEVICE_RS485_2 0x02

@@ -46,10 +46,16 @@ void send_test_data(int client_fd)
         usleep(DELAY_MICROSECOND);
     }
 
-    // 发送CAN设备数据
+    // 发送CAN设备数据，每个数据包必须是8个字节
     for (int i = DEVICE_CAN_1; i <= DEVICE_CAN_2; ++i)
     {
-        if (send_device_data(client_fd, i, can_data, sizeof(can_data)) < 0)
+        unsigned char can_packet[8] = {0};
+
+        // 填充CAN数据包，确保数据长度为8字节
+        size_t can_data_len = sizeof(can_data);
+        memcpy(can_packet, can_data, can_data_len);
+
+        if (send_device_data(client_fd, i, can_packet, sizeof(can_packet)) < 0)
         {
             log_error("Failed to send CAN data");
         }

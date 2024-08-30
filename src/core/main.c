@@ -6,6 +6,7 @@
 #include "server.h"
 #include "daemonize.h"
 #include "logger.h"
+#include "common.h"
 
 int main(int argc, char *argv[])
 {
@@ -13,9 +14,9 @@ int main(int argc, char *argv[])
     int port = DEFAULT_PORT;
     int run_as_daemon = 0;
 
-    if (argc < 2 || argc > 5)
+    if (argc < 2 || argc > 6) // 调整最大参数数量
     {
-        fprintf(stderr, "Usage: %s <mode> [<server_address> <port>] [--daemon]\n", argv[0]);
+        fprintf(stderr, "Usage: %s <mode> [<server_address> <port>] [--daemon] [--send-test | --recv-test]\n", argv[0]);
         fprintf(stderr, "mode: 'server' or 'client'\n");
         exit(EXIT_FAILURE);
     }
@@ -25,6 +26,14 @@ int main(int argc, char *argv[])
         if (strcmp(argv[i], "--daemon") == 0)
         {
             run_as_daemon = 1;
+        }
+        else if (strcmp(argv[i], "--send-test") == 0)
+        {
+            MODE_SEND_TEST = 1;
+        }
+        else if (strcmp(argv[i], "--recv-test") == 0)
+        {
+            MODE_RECV_TEST = 1;
         }
         else if (i == 1)
         {
@@ -61,14 +70,35 @@ int main(int argc, char *argv[])
     // 打开系统日志
     openlog("mydaemon", LOG_PID, LOG_DAEMON);
 
+    // 根据模式启动服务或客户端
     if (strcmp(argv[1], "server") == 0)
     {
         log_info("Starting server at %s:%d", server_address, port);
+        if (MODE_SEND_TEST)
+        {
+            log_info("Send test mode enabled.");
+            // 服务器发送测试逻辑
+        }
+        if (MODE_RECV_TEST)
+        {
+            log_info("Receive test mode enabled.");
+            // 服务器接收测试逻辑
+        }
         server_main(server_address, port);
     }
     else if (strcmp(argv[1], "client") == 0)
     {
         log_info("Starting client to connect to %s:%d", server_address, port);
+        if (MODE_SEND_TEST)
+        {
+            log_info("Send test mode enabled.");
+            // 客户端发送测试逻辑
+        }
+        if (MODE_RECV_TEST)
+        {
+            log_info("Receive test mode enabled.");
+            // 客户端接收测试逻辑
+        }
         client_main(server_address, port);
     }
     else

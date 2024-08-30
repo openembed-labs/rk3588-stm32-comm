@@ -11,6 +11,7 @@
         "string.h": "c",
         "socket.h": "c",
         "unistd.h": "c",
-        "send_device_data.h": "c"
+        "send_device_data.h": "c",
+        "stdlib.h": "c"
     }
 }

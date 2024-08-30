@@ -18,7 +18,6 @@ typedef struct
     int client_fd;
     pthread_mutex_t mutex;
     char response[256];
-    int send_ready; // 限制为收到数据处理后才能发送数据 如不需要可去除限制
 } ThreadData;
 
 void *recv_thread(void *arg);
@@ -32,7 +31,6 @@ void server_recv_send(int client_fd)
     // Initialize thread data
     thread_data.client_fd = client_fd;
     pthread_mutex_init(&thread_data.mutex, NULL);
-    thread_data.send_ready = 0;
 
     // Create threads for receiving and sending
     pthread_create(&recv_tid, NULL, recv_thread, &thread_data);
@@ -87,7 +85,6 @@ void *recv_thread(void *arg)
         // Prepare the response
         pthread_mutex_lock(&data->mutex);
         snprintf(data->response, sizeof(data->response), "Message received and processed.");
-        data->send_ready = 1;
         pthread_mutex_unlock(&data->mutex);
 
         usleep(5000); // 5ms
@@ -103,23 +100,14 @@ void *send_thread(void *arg)
     while (1)
     {
         pthread_mutex_lock(&data->mutex);
-        if (data->send_ready)
-        {
 
 // 数据准备完毕，调用构造函数发送数据
 // construct_and_send_data(data->client_fd);
-#ifdef MODE_TEST
-            send_test_data(data->client_fd);
+#ifdef MODE_SEND_TEST
+        send_test_data(data->client_fd);
 #endif
 
-            // 更新状态
-            data->send_ready = 0;
-            pthread_mutex_unlock(&data->mutex);
-        }
-        else
-        {
-            pthread_mutex_unlock(&data->mutex);
-        }
+        pthread_mutex_unlock(&data->mutex);
 
         usleep(10000); // 每 10ms 检查一次
     }
