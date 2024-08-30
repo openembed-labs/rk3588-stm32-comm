@@ -65,6 +65,9 @@ void *recv_thread(void *arg)
         unsigned short device_id = buf[0];
         log_info("\nDevice ID: %02X", device_id);
 
+        printf("Received data (raw): ");
+        fwrite(buf, sizeof(char), bytes_received, stdout);
+
         printf("Received data (hex): ");
         print_hex(buf, bytes_received);
 

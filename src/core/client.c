@@ -13,7 +13,8 @@ void client_main(const char *server_address, int port)
     int c_fd;
     char buf[MAX_LINE];
     struct sockaddr_in client_addr;
-    int len, bytes_sent;
+    int bytes_sent;
+    // int len, bytes_sent;
 
     if ((c_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
@@ -53,16 +54,16 @@ void client_main(const char *server_address, int port)
         }
         log_info("Sent %d bytes to server", bytes_sent);
 
-        len = recv(c_fd, buf, MAX_LINE - 1, 0);
-        if (len == -1)
-        {
-            log_error("Receive error");
-            close(c_fd);
-            exit(EXIT_FAILURE);
-        }
+        // len = recv(c_fd, buf, MAX_LINE - 1, 0);
+        // if (len == -1)
+        // {
+        //     log_error("Receive error");
+        //     close(c_fd);
+        //     exit(EXIT_FAILURE);
+        // }
 
-        buf[len] = '\0';
-        log_info("Received reply from server: %s", buf);
+        // buf[len] = '\0';
+        // log_info("Received reply from server: %s", buf);
     }
 
     close(c_fd);
