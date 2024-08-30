@@ -96,44 +96,6 @@ void *recv_thread(void *arg)
     return NULL;
 }
 
-// 构造要发送的数据
-void construct_and_send_data(int client_fd)
-{
-    // 示例数据：十六进制数据 {0x00, 0x41, 0x42}
-    const unsigned char data[] = {0x00, 0x41, 0x42}; // 这是十六进制数据
-    size_t data_length = sizeof(data);
-
-    // 数据缓冲区，第一字节是设备号，后面是数据
-    unsigned char buffer[256];
-
-    // 设置设备号
-    buffer[0] = DEVICE_DI;
-
-    // 复制数据到缓冲区
-    memcpy(buffer + 1, data, data_length);
-
-    // 数据长度是设备号后面的长度
-    size_t total_length = 1 + data_length;
-
-    // 发送数据
-    ssize_t bytes_sent = 0;
-    ssize_t total_sent = 0;
-
-    while (total_sent < total_length)
-    {
-        bytes_sent = send(client_fd, buffer + total_sent, total_length - total_sent, 0);
-        if (bytes_sent <= 0)
-        {
-            // 发送失败，可能需要重试
-            perror("Failed to send data");
-            return;
-        }
-        total_sent += bytes_sent;
-    }
-
-    printf("Successful send %zu bite data\n", total_sent);
-}
-
 void *send_thread(void *arg)
 {
     ThreadData *data = (ThreadData *)arg;
@@ -143,9 +105,12 @@ void *send_thread(void *arg)
         pthread_mutex_lock(&data->mutex);
         if (data->send_ready)
         {
-            // 数据准备完毕，调用构造函数发送数据
-            construct_and_send_data(data->client_fd);
+
+// 数据准备完毕，调用构造函数发送数据
+// construct_and_send_data(data->client_fd);
+#ifdef MODE_TEST
             send_test_data(data->client_fd);
+#endif
 
             // 更新状态
             data->send_ready = 0;

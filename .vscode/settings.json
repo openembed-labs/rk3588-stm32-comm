@@ -9,6 +9,8 @@
         "client_handler.h": "c",
         "server_recv_send.h": "c",
         "string.h": "c",
-        "socket.h": "c"
+        "socket.h": "c",
+        "unistd.h": "c",
+        "send_device_data.h": "c"
     }
 }
