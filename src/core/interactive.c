@@ -6,9 +6,9 @@
 #include "logger.h"
 #include "common.h"
 
-void interactive_mode_main(const char *command_file)
+void interactive_mode_main()
 {
-    FILE *input_file = fopen(command_file, "a+"); // 使用 "a+" 模式确保文件存在，并允许读取
+    FILE *input_file = fopen(COMMAND_FILE, "a+"); // 使用 "a+" 模式确保文件存在，并允许读取
     if (input_file == NULL)
     {
         log_error("Failed to open file for writing user commands.");

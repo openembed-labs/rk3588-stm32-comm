@@ -1,7 +1,13 @@
 #ifndef CLIENT_HANDLER_H
 #define CLIENT_HANDLER_H
 
+typedef struct
+{
+    int client_fd;
+    pthread_mutex_t mutex;
+    char response[256];
+} ThreadData;
+
 void server_recv_send(int client_fd);
-int send_to_client(int client_fd, const char *message);
 
 #endif // CLIENT_HANDLER_H

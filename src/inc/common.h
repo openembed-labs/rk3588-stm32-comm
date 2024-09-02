@@ -1,8 +1,23 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-extern int MODE_SEND_TEST;
-extern int MODE_RECV_TEST;
+typedef enum
+{
+    MODE_SERVER,
+    MODE_CLIENT,
+    MODE_INTERACTIVE,
+    MODE_INVALID
+} Mode;
+
+typedef enum
+{
+    SOCKET_RECV,
+    SOCKET_SEND,
+    SOCKET_INVALID
+} SocketMode;
+
+extern Mode mode;
+extern SocketMode mode_socket;
 
 #define COMMAND_FILE "server_command.txt"
 

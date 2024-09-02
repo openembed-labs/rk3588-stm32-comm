@@ -13,6 +13,7 @@
         "unistd.h": "c",
         "send_device_data.h": "c",
         "stdlib.h": "c",
-        "send_test_data.h": "c"
+        "send_test_data.h": "c",
+        "commands.h": "c"
     }
 }

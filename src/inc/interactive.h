@@ -1,6 +1,6 @@
 #ifndef INTERACTIVE_H
 #define INTERACTIVE_H
 
-void interactive_mode_main(const char *command_file);
+void interactive_mode_main();
 
 #endif // INTERACTIVE_H
