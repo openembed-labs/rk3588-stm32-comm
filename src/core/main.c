@@ -4,6 +4,7 @@
 #include <syslog.h>
 #include "client.h"
 #include "server.h"
+#include "interactive.h"
 #include "daemonize.h"
 #include "logger.h"
 #include "common.h"
@@ -14,10 +15,10 @@ int main(int argc, char *argv[])
     int port = DEFAULT_PORT;
     int run_as_daemon = 0;
 
-    if (argc < 2 || argc > 6) // 调整最大参数数量
+    if (argc < 2 || argc > 6)
     {
         fprintf(stderr, "Usage: %s <mode> [<server_address> <port>] [--daemon] [--send-test | --recv-test]\n", argv[0]);
-        fprintf(stderr, "mode: 'server' or 'client'\n");
+        fprintf(stderr, "mode: 'server', 'client', or 'interactive'\n");
         exit(EXIT_FAILURE);
     }
 
@@ -37,26 +38,22 @@ int main(int argc, char *argv[])
         }
         else if (i == 1)
         {
-            // 第一参数是模式
-            if (strcmp(argv[i], "server") != 0 && strcmp(argv[i], "client") != 0)
+            if (strcmp(argv[i], "server") != 0 && strcmp(argv[i], "client") != 0 && strcmp(argv[i], "interactive") != 0)
             {
-                fprintf(stderr, "Invalid mode. Use 'server' or 'client'.\n");
+                fprintf(stderr, "Invalid mode. Use 'server', 'client', or 'interactive'.\n");
                 exit(EXIT_FAILURE);
             }
         }
         else if (i == 2)
         {
-            // 第二参数是服务器地址
             server_address = argv[i];
         }
         else if (i == 3)
         {
-            // 第三参数是端口号
             port = atoi(argv[i]);
         }
     }
 
-    // 如果选项中包含 --daemon，则将程序变成守护进程
     if (run_as_daemon)
     {
         daemonize();
@@ -67,10 +64,8 @@ int main(int argc, char *argv[])
         set_log_mode(LOG_MODE_CONSOLE);
     }
 
-    // 打开系统日志
     openlog("mydaemon", LOG_PID, LOG_DAEMON);
 
-    // 根据模式启动服务或客户端
     if (strcmp(argv[1], "server") == 0)
     {
         log_info("Starting server at %s:%d", server_address, port);
@@ -81,14 +76,17 @@ int main(int argc, char *argv[])
         log_info("Starting client to connect to %s:%d", server_address, port);
         client_main(server_address, port);
     }
+    else if (strcmp(argv[1], "interactive") == 0)
+    {
+        log_info("Entering interactive mode (enter '/exit' to exit): .");
+        interactive_mode_main(COMMAND_FILE);
+    }
     else
     {
-        log_error("Invalid mode. Use 'server' or 'client'.");
+        log_error("Invalid mode. Use 'server', 'client', or 'interactive'.");
         exit(EXIT_FAILURE);
     }
 
-    // 关闭系统日志
     closelog();
-
     return 0;
 }

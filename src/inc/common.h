@@ -4,6 +4,8 @@
 extern int MODE_SEND_TEST;
 extern int MODE_RECV_TEST;
 
+#define COMMAND_FILE "server_command.txt"
+
 #define DEVICE_RS485_1 0x01
 #define DEVICE_RS485_2 0x02
 #define DEVICE_RS485_3 0x03

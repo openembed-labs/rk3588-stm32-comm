@@ -1,12 +1,15 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <pthread.h>
+#include <ctype.h>
 #include "logger.h"
 #include "di_data.h"
 #include "common.h"
 #include "server.h"
+#include "send_device_data.h"
 #include "server_recv_send.h"
 #include "send_test_data.h"
 
@@ -96,19 +99,92 @@ void *recv_thread(void *arg)
     return NULL;
 }
 
+// 转换十六进制字符串到字节数组
+size_t hex_string_to_bytes(const char *hex_str, unsigned char *buffer, size_t buffer_size)
+{
+    size_t length = strlen(hex_str);
+    size_t index = 0;
+
+    for (size_t i = 0; i < length && index < buffer_size; i += 3)
+    { // 每两个字符为一个字节，中间有空格
+        if (isxdigit(hex_str[i]) && isxdigit(hex_str[i + 1]))
+        {
+            unsigned int value;
+            sscanf(hex_str + i, "%2x", &value);
+            buffer[index++] = (unsigned char)value;
+        }
+    }
+    return index;
+}
+
 void *send_thread(void *arg)
 {
     ThreadData *data = (ThreadData *)arg;
+    char command_buffer[256];
+    FILE *command_file;
 
     while (1)
     {
         pthread_mutex_lock(&data->mutex);
 
-// 数据准备完毕，调用构造函数发送数据
-// construct_and_send_data(data->client_fd);
-#ifdef MODE_SEND_TEST
-        send_test_data(data->client_fd);
-#endif
+        // 打开命令文件进行读取
+        command_file = fopen(COMMAND_FILE, "r+");
+        if (command_file != NULL)
+        {
+            // 读取并处理文件中的命令
+            if (fgets(command_buffer, sizeof(command_buffer), command_file) != NULL)
+            {
+                // 去掉命令末尾的换行符
+                size_t len = strlen(command_buffer);
+                if (len > 0 && command_buffer[len - 1] == '\n')
+                {
+                    command_buffer[len - 1] = '\0';
+                }
+
+                // 解析设备ID和命令
+                char *device_id_str = strtok(command_buffer, " ");
+                char *command_data = strtok(NULL, "");
+
+                printf("command_buffer raw=%s\n", command_buffer);
+                printf("device_id_str raw=%s\n", device_id_str);
+
+                if (device_id_str && command_data)
+                {
+                    unsigned char device_id = (unsigned char)strtol(device_id_str, NULL, 16);
+
+                    // 将十六进制字符串命令数据转换为字节数组
+                    unsigned char data_buffer[256];
+                    size_t data_length = hex_string_to_bytes(command_data, data_buffer, sizeof(data_buffer));
+
+                    // 发送命令到客户端
+                    if (send_device_data(data->client_fd, device_id, data_buffer, data_length) == -1)
+                    {
+                        perror("Failed to send command to client");
+                    }
+                    else
+                    {
+                        printf("Sent command to client: %s\n", command_data);
+                    }
+                }
+                else
+                {
+                    fprintf(stderr, "Invalid command format: %s\n", command_buffer);
+                }
+            }
+
+            // 清空文件内容
+            freopen(COMMAND_FILE, "w", command_file); // 重新以 "w" 模式打开文件以清空内容
+            fclose(command_file);
+        }
+        else
+        {
+            perror("Failed to open command file for reading");
+        }
+
+        if (MODE_SEND_TEST == 1)
+        {
+            // send_test_data(data->client_fd); // 你需要定义这个函数
+        }
 
         pthread_mutex_unlock(&data->mutex);
 
