@@ -141,5 +141,3 @@ sudo journalctl -t mydaemon
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ------
-
-This expanded documentation should provide users with clear instructions and details for setting up, using, and testing the communication system between the RK3588 and STM32.

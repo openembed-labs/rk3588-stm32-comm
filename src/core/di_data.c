@@ -4,7 +4,6 @@
 #include <sys/socket.h>
 #include "logger.h"
 
-// 实现 generate_di_data 函数
 void generate_di_data(DI_Data *data)
 {
     data->DI = 00;
@@ -20,7 +19,6 @@ void generate_di_data(DI_Data *data)
     data->DI_values[7] = 8;
 }
 
-// 实现 encode_di_data 函数
 void encode_di_data(const DI_Data *data, unsigned char *buf)
 {
     buf[0] = data->DI;
@@ -28,7 +26,6 @@ void encode_di_data(const DI_Data *data, unsigned char *buf)
     buf[2] = data->DI_values[0] + (data->DI_values[1] << 1) + (data->DI_values[2] << 2) + (data->DI_values[3] << 3) + (data->DI_values[4] << 4) + (data->DI_values[5] << 5) + (data->DI_values[6] << 6) + (data->DI_values[7] << 7);
 }
 
-// 实现 decode_di_data 函数
 void decode_di_data(const unsigned char *buf, DI_Data *data)
 {
     data->DI = buf[0];
@@ -44,7 +41,6 @@ void decode_di_data(const unsigned char *buf, DI_Data *data)
     data->DI_values[7] = (buf[2] >> 7) & 0x01;
 }
 
-// 实现 send_di_data 函数
 void send_di_data(int connection_fd, const DI_Data *data)
 {
     unsigned char buf[3];
@@ -57,7 +53,6 @@ void send_di_data(int connection_fd, const DI_Data *data)
     }
 }
 
-// 实现 receive_di_data 函数
 void receive_di_data(int c_fd, DI_Data *di_data)
 {
     // 解析收到的数据为 DI_Data 结构体
@@ -81,7 +76,13 @@ void receive_di_data(int c_fd, DI_Data *di_data)
     }
 }
 
-// 处理DI的数据
+/**
+ * @brief 处理DI的数据
+ *
+ * @param buf
+ * @param bytes_received
+ * @param di_data
+ */
 void handle_device_DI(const unsigned char *buf, size_t bytes_received, DI_Data *di_data)
 {
     // 数据以二进制格式打印

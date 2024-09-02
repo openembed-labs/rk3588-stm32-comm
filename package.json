@@ -11,10 +11,6 @@
     "scripts": {
         "release": "release-it"
     },
-    "devDependencies": {
-        "@release-it/conventional-changelog": "^8.0.1",
-        "release-it": "^17.6.0"
-    },
     "release-it": {
         "git": {
             "commitMessage": "chore: release v${version}"
