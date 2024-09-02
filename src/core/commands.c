@@ -41,12 +41,17 @@ void process_command_file(ThreadData *data)
     char command_buffer[256];
     FILE *command_file;
 
-    // 打开命令文件进行读取
+    // 尝试以读写模式打开命令文件，如果文件不存在则创建文件
     command_file = fopen(COMMAND_FILE, "r+");
     if (command_file == NULL)
     {
-        perror("Error: Failed to open command file for reading");
-        return;
+        // 文件不存在，尝试以写入模式创建文件
+        command_file = fopen(COMMAND_FILE, "w+");
+        if (command_file == NULL)
+        {
+            perror("Error: Failed to open or create command file");
+            return;
+        }
     }
 
     // 读取并处理文件中的命令

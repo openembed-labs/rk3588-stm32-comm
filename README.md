@@ -1,6 +1,6 @@
 # RK3588-STM32 Communication
 
-This repository contains code for a simple TCP client-server communication setup between an RK3588 running Ubuntu and an STM32 microcontroller. The RK3588 can operate as both the server and client, facilitating communication with the STM32 over a TCP connection.
+This repository contains code for a TCP client-server communication setup between an RK3588 running Ubuntu and an STM32 microcontroller. The RK3588 can act as both a server and a client, facilitating communication with the STM32 over a TCP connection.
 
 ## Table of Contents
 
@@ -8,23 +8,24 @@ This repository contains code for a simple TCP client-server communication setup
 - [Features](#features)
 - [Setup](#setup)
 - [Usage](#usage)
-- [Building and Running](#building-and-running)
 - [Testing](#testing)
 - [Daemonize & Log](#daemonize--log)
 - [License](#license)
 
 ## Overview
 
-This project demonstrates a basic TCP client-server communication setup where the RK3588 can act as a client or server, enabling communication with an STM32 microcontroller over a TCP connection.
+This project demonstrates a TCP client-server communication setup where the RK3588 can function as either a client or a server. The communication is established over TCP with an STM32 microcontroller. The project includes support for running in interactive mode, daemon mode, and test modes for both sending and receiving data.
 
 ## Features
 
 - **TCP Server**: Listens for incoming connections and processes received messages.
 - **TCP Client**: Connects to a server and sends messages.
+- **Interactive Mode**: Provides an interactive interface for managing communication.
 - **Cross-Compilation Support**: Enables cross-compilation for ARM architectures.
-- **Communication Modes**: Supports both sending and receiving test modes (`--send-test` and `--recv-test`).
+- **Communication Modes**: Supports sending and receiving test modes (`--send-test` and `--recv-test`).
 - **Daemon Mode**: Allows the program to run as a daemon process.
 - **Logging**: Supports both console and syslog logging.
+- **Command File Processing**: Processes commands from a file in server mode.
 
 ## Setup
 
@@ -36,6 +37,14 @@ This project demonstrates a basic TCP client-server communication setup where th
 - STM32 Microcontroller
 - Network setup to allow communication between RK3588 and STM32
 
+### Dependencies
+
+Make sure you have the necessary packages installed on your Ubuntu system:
+
+```
+sudo apt-get update
+sudo apt-get install build-essential
+```
 
 ## Usage
 
@@ -55,32 +64,44 @@ This project demonstrates a basic TCP client-server communication setup where th
    ```
    make
    ```
-   
+
    This will compile the source files and generate the binaries in the `build/` directory.
 
 3. **Run the server and client**
 
-   First, start the server program:
+   - **Start the server program:**
 
-   ```
-   ./build/combined_program server [--send-test | --recv-test] [--daemon]
-   ```
-   
-   In another terminal, run the client program:
+     ```
+     ./build/combined_program server [--send-test | --recv-test] [--daemon]
+     ```
 
-   ```
-   ./build/combined_program client <server_address> <port> [--send-test | --recv-test] [--daemon]
-   ```
-   
-   - `--send-test`: Enable sending test mode.
-   - `--recv-test`: Enable receiving test mode.
-   - `--daemon`: Run the program as a daemon.
+   - **Run the client program in another terminal:**
 
-   Example:
-   
+     ```
+     ./build/combined_program client <server_address> <port> [--send-test | --recv-test] [--daemon]
+     ```
+
+   - **Options:**
+
+     - `--send-test`: Enable sending test mode.
+     - `--recv-test`: Enable receiving test mode.
+     - `--daemon`: Run the program as a daemon.
+
+   **Example:**
+
    ```
    ./build/combined_program client 192.168.1.100 8080 --send-test
    ```
+
+### Interactive Mode
+
+To enter interactive mode, use:
+
+```
+./build/combined_program interactive
+```
+
+In interactive mode, the program provides a command-line interface for managing communication.
 
 ## Testing
 
@@ -93,14 +114,14 @@ A test script is provided to automate the process of starting the server and cli
    ```
    chmod +x test.sh
    ```
-   
+
 2. **Run the script**
 
    ```
    ./test.sh
    ```
-   
-   The script will handle starting the server and client, running them with default parameters.
+
+   The script will handle starting the server and client with default parameters.
 
 ## Daemonize & Log
 
@@ -114,7 +135,7 @@ To run the program as a daemon:
 
 ### Checking the Process
 
-You can check if the program is running as a daemon by using:
+To check if the program is running as a daemon:
 
 ```
 ps aux | grep combined_program
@@ -130,7 +151,7 @@ pkill combined_program
 
 ### Viewing Logs
 
-If the program is running in daemon mode with syslog enabled, you can view the logs using:
+If the program is running in daemon mode with syslog enabled, view the logs using:
 
 ```
 sudo journalctl -t mydaemon
@@ -141,3 +162,4 @@ sudo journalctl -t mydaemon
 This project is licensed under the MIT License - see the LICENSE file for details.
 
 ------
+

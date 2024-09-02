@@ -18,23 +18,26 @@
 
 void *recv_thread(void *arg);
 void *send_thread(void *arg);
+void *process_command_file_thread(void *arg);
 
 void server_recv_send(int client_fd)
 {
     ThreadData thread_data;
-    pthread_t recv_tid, send_tid;
+    pthread_t recv_tid, send_tid, command_tid;
 
     // Initialize thread data
     thread_data.client_fd = client_fd;
     pthread_mutex_init(&thread_data.mutex, NULL);
 
-    // Create threads for receiving and sending
+    // Create threads for receiving, sending, and processing commands
     pthread_create(&recv_tid, NULL, recv_thread, &thread_data);
     pthread_create(&send_tid, NULL, send_thread, &thread_data);
+    pthread_create(&command_tid, NULL, process_command_file_thread, &thread_data);
 
     // Wait for threads to finish
     pthread_join(recv_tid, NULL);
     pthread_join(send_tid, NULL);
+    pthread_join(command_tid, NULL);
 
     close(client_fd);
     pthread_mutex_destroy(&thread_data.mutex);
@@ -100,13 +103,27 @@ void *send_thread(void *arg)
     {
         pthread_mutex_lock(&data->mutex);
 
-        process_command_file(data); // TODO 似乎会一直运行
-
         if (mode_socket == SOCKET_SEND)
         {
             send_test_data(data->client_fd);
         }
 
+        pthread_mutex_unlock(&data->mutex);
+
+        usleep(10000); // 每 10ms 检查一次
+    }
+
+    return NULL;
+}
+
+void *process_command_file_thread(void *arg)
+{
+    ThreadData *data = (ThreadData *)arg;
+
+    while (1)
+    {
+        pthread_mutex_lock(&data->mutex);
+        process_command_file(data);
         pthread_mutex_unlock(&data->mutex);
 
         usleep(10000); // 每 10ms 检查一次

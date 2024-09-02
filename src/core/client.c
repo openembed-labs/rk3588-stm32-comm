@@ -40,7 +40,7 @@ void *send_thread_client(void *arg)
 // 接收线程函数
 void *recv_thread_client(void *arg)
 {
-    char buf[MAX_LINE];
+    unsigned char buf[MAX_LINE];
     while (1)
     {
         int len = recv(c_fd, buf, MAX_LINE - 1, 0);
@@ -58,7 +58,9 @@ void *recv_thread_client(void *arg)
         }
 
         buf[len] = '\0';
-        printf("Received reply from server: %s\n", buf); // 使用 printf 进行调试
+        // printf("Received reply from server: %s\n", buf);
+        printf("Received data (raw): ");
+        print_hex(buf, len);
     }
 }
 
