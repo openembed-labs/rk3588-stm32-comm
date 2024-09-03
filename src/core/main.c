@@ -110,6 +110,7 @@ void start_mode(Mode mode, const char *server_address, int port)
         printf("Usage: Command file should contain lines with the following format:\n");
         printf("       <device_id> <hex_command_data>\n");
         printf("       Where <device_id> is a hexadecimal number (e.g., 0x01) and <hex_command_data> is a hex string (e.g., '01 23 45')\n");
+        printf("enter '/exit' to exit\n");
         interactive_mode_main();
         break;
 
@@ -118,5 +119,6 @@ void start_mode(Mode mode, const char *server_address, int port)
         exit(EXIT_FAILURE);
     }
 
+    sem_unlink(SEMAPHORE_NAME);
     closelog();
 }

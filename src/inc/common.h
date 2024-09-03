@@ -1,6 +1,8 @@
 #ifndef COMMON_H
 #define COMMON_H
 
+#include <semaphore.h>
+
 typedef enum
 {
     MODE_SERVER,
@@ -20,6 +22,8 @@ extern Mode mode;
 extern SocketMode mode_socket;
 
 #define COMMAND_FILE "server_command.txt"
+
+#define SEMAPHORE_NAME "/command_semaphore"
 
 #define DEVICE_RS485_1 0x01
 #define DEVICE_RS485_2 0x02

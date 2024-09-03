@@ -1,13 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <syslog.h>
-#include "interactive.h"
-#include "logger.h"
+#include <fcntl.h> // For O_CREAT, O_EXCL
+#include <semaphore.h>
 #include "common.h"
+#include "logger.h"
 
 void interactive_mode_main()
 {
+    // 打开已存在的命名信号量
+    sem_t *sem = sem_open(SEMAPHORE_NAME, 0);
+    if (sem == SEM_FAILED)
+    {
+        log_error("Failed to open semaphore in interactive_mode_main.");
+        exit(EXIT_FAILURE);
+    }
+
     FILE *input_file = fopen(COMMAND_FILE, "a+"); // 使用 "a+" 模式确保文件存在，并允许读取
     if (input_file == NULL)
     {
@@ -34,8 +42,12 @@ void interactive_mode_main()
             // 将用户输入写入文件
             fprintf(input_file, "%s\n", command);
             fflush(input_file);
+
+            // 释放信号量，让另一个线程知道有命令写入
+            sem_post(sem);
         }
     }
 
     fclose(input_file);
+    sem_close(sem); // Close the semaphore when done
 }
