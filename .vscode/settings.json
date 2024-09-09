@@ -23,6 +23,9 @@
         "fcntl.h": "c",
         "interactive.h": "c",
         "interceptor.h": "c",
-        "safe_recv_send.h": "c"
+        "safe_recv_send.h": "c",
+        "errno.h": "c",
+        "stdio.h": "c",
+        "inet.h": "c"
     }
 }

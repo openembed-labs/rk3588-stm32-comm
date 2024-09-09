@@ -9,7 +9,7 @@
 #include "client.h"
 #include "logger.h"
 
-int c_fd; // 全局变量，用于在线程间共享套接字
+int client_fd; // 全局变量，用于在线程间共享套接字
 
 // 发送线程函数
 void *send_thread_client(void *arg)
@@ -22,15 +22,15 @@ void *send_thread_client(void *arg)
 
         if (strcmp(buf, "quit\n") == 0)
         {
-            close(c_fd);
+            close(client_fd);
             pthread_exit(NULL);
         }
 
-        int bytes_sent = send(c_fd, buf, strlen(buf), 0);
+        int bytes_sent = send(client_fd, buf, strlen(buf), 0);
         if (bytes_sent == -1)
         {
             log_error("Send error");
-            close(c_fd);
+            close(client_fd);
             pthread_exit(NULL);
         }
         log_info("Sent %d bytes to server", bytes_sent);
@@ -43,17 +43,17 @@ void *recv_thread_client(void *arg)
     unsigned char buf[MAX_LINE];
     while (1)
     {
-        int len = recv(c_fd, buf, MAX_LINE - 1, 0);
+        int len = recv(client_fd, buf, MAX_LINE - 1, 0);
         if (len == -1)
         {
             log_error("Receive error");
-            close(c_fd);
+            close(client_fd);
             pthread_exit(NULL);
         }
         else if (len == 0)
         {
             log_info("Server closed the connection");
-            close(c_fd);
+            close(client_fd);
             pthread_exit(NULL);
         }
 
@@ -68,7 +68,7 @@ void client_main(const char *server_address, int port)
 {
     struct sockaddr_in client_addr;
 
-    if ((c_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+    if ((client_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
     {
         log_error("Socket error");
         exit(1);
@@ -79,11 +79,11 @@ void client_main(const char *server_address, int port)
     client_addr.sin_addr.s_addr = inet_addr(server_address);
     client_addr.sin_port = htons(port);
 
-    int status = connect(c_fd, (struct sockaddr *)&client_addr, sizeof(client_addr));
+    int status = connect(client_fd, (struct sockaddr *)&client_addr, sizeof(client_addr));
     if (status == -1)
     {
         log_error("Connect error");
-        close(c_fd);
+        close(client_fd);
         exit(1);
     }
 
@@ -95,7 +95,7 @@ void client_main(const char *server_address, int port)
     if (pthread_create(&send_tid, NULL, send_thread_client, NULL) != 0)
     {
         log_error("Failed to create send thread");
-        close(c_fd);
+        close(client_fd);
         exit(1);
     }
 
@@ -103,7 +103,7 @@ void client_main(const char *server_address, int port)
     if (pthread_create(&recv_tid, NULL, recv_thread_client, NULL) != 0)
     {
         log_error("Failed to create receive thread");
-        close(c_fd);
+        close(client_fd);
         exit(1);
     }
 
@@ -111,5 +111,5 @@ void client_main(const char *server_address, int port)
     pthread_join(send_tid, NULL);
     pthread_join(recv_tid, NULL);
 
-    close(c_fd);
+    close(client_fd);
 }

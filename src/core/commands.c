@@ -8,6 +8,7 @@
 #include "common.h"
 #include "server_recv_send.h"
 #include "send_device_data.h"
+#include "firmware.h"
 
 // 转换十六进制字符串到字节数组
 size_t hex_string_to_bytes(const char *hex_str, unsigned char *buffer, size_t buffer_size)
@@ -16,7 +17,7 @@ size_t hex_string_to_bytes(const char *hex_str, unsigned char *buffer, size_t bu
     size_t index = 0;
 
     for (size_t i = 0; i < length && index < buffer_size; i += 3)
-    { // 每两个字符为一个字节，中间有空格
+    {
         if (isxdigit(hex_str[i]) && isxdigit(hex_str[i + 1]))
         {
             unsigned int value;
@@ -36,6 +37,86 @@ size_t hex_string_to_bytes(const char *hex_str, unsigned char *buffer, size_t bu
     return index;
 }
 
+// 处理特殊命令
+void process_special_command(int client_fd, const char *command)
+{
+    // 检查是否是升级固件命令 "/upgrade <文件路径>"
+    char *cmd = strtok(strdup(command), " ");
+    if (strcmp(cmd, "/upgrade") == 0)
+    {
+        char *firmware_path = strtok(NULL, " "); // 获取文件路径
+        if (firmware_path)
+        {
+            printf("Upgrade firmware command received. Path: %s\n", firmware_path);
+            // 调用发送固件的函数
+            send_firmware(client_fd, firmware_path);
+        }
+        else
+        {
+            fprintf(stderr, "Error: No firmware path provided for upgrade command.\n");
+        }
+    }
+    else
+    {
+        fprintf(stderr, "Error: Unrecognized special command: %s\n", cmd);
+    }
+    free(cmd);
+}
+
+// 处理普通设备命令
+void process_device_command(int client_fd, const char *device_id_str, const char *command_data)
+{
+    if (device_id_str && command_data)
+    {
+        unsigned char device_id = (unsigned char)strtol(device_id_str, NULL, 16);
+
+        // 将十六进制字符串命令数据转换为字节数组
+        unsigned char data_buffer[256];
+        size_t data_length = hex_string_to_bytes(command_data, data_buffer, sizeof(data_buffer));
+
+        if (data_length == 0)
+        {
+            fprintf(stderr, "Error: Failed to convert command data '%s' to bytes\n", command_data);
+        }
+        else
+        {
+            // 发送命令到客户端
+            if (send_device_data(client_fd, device_id, data_buffer, data_length) == -1)
+            {
+                fprintf(stderr, "Error: Failed to send command to client (device_id: 0x%02X)\n", device_id);
+            }
+            else
+            {
+                printf("Sent command to client (device_id: 0x%02X): %s\n", device_id, command_data);
+            }
+        }
+    }
+    else
+    {
+        fprintf(stderr, "Error: Invalid command format. Device ID or command data missing.\n");
+    }
+}
+
+// 解析并处理命令
+void parse_and_process_command(int client_fd, const char *command_buffer)
+{
+    // 检查是否是特殊命令（以 "/" 开头）
+    if (command_buffer[0] == '/')
+    {
+        // 处理特殊命令
+        process_special_command(client_fd, command_buffer);
+    }
+    else
+    {
+        // 处理普通设备命令
+        char *device_id_str = strtok(strdup(command_buffer), " ");
+        char *command_data = strtok(NULL, "");
+        process_device_command(client_fd, device_id_str, command_data);
+        free(device_id_str); // 清理 strdup 创建的内存
+    }
+}
+
+// 从文件中读取命令并处理
 void process_command_file(ThreadData *data)
 {
     char command_buffer[256];
@@ -64,39 +145,8 @@ void process_command_file(ThreadData *data)
             command_buffer[len - 1] = '\0';
         }
 
-        // 解析设备ID和命令
-        char *device_id_str = strtok(command_buffer, " ");
-        char *command_data = strtok(NULL, "");
-
-        if (device_id_str && command_data)
-        {
-            unsigned char device_id = (unsigned char)strtol(device_id_str, NULL, 16);
-
-            // 将十六进制字符串命令数据转换为字节数组
-            unsigned char data_buffer[256];
-            size_t data_length = hex_string_to_bytes(command_data, data_buffer, sizeof(data_buffer));
-
-            if (data_length == 0)
-            {
-                fprintf(stderr, "Error: Failed to convert command data '%s' to bytes\n", command_data);
-            }
-            else
-            {
-                // 发送命令到客户端
-                if (send_device_data(data->client_fd, device_id, data_buffer, data_length) == -1)
-                {
-                    fprintf(stderr, "Error: Failed to send command to client (device_id: 0x%02X)\n", device_id);
-                }
-                else
-                {
-                    printf("Sent command to client (device_id: 0x%02X): %s\n", device_id, command_data);
-                }
-            }
-        }
-        else
-        {
-            fprintf(stderr, "Error: Invalid command format in file: '%s'\n", command_buffer);
-        }
+        // 解析并处理命令
+        parse_and_process_command(data->client_fd, command_buffer);
     }
 
     // 清空文件内容
