@@ -11,6 +11,8 @@
 #include "daemonize.h"
 #include "common.h"
 #include "gpio_control.h"
+#include "interceptor.h"
+#include "safe_recv_send.h"
 
 void parse_arguments(int argc, char *argv[], int *run_as_daemon, Mode *mode, char **server_address, int *port);
 void initialize_program(int run_as_daemon);
@@ -43,6 +45,10 @@ int main(int argc, char *argv[])
     signal(SIGTERM, cleanup);
 
     start_mode(mode, server_address, port);
+
+    // 注册拦截器
+    register_send_interceptor(safe_send_interceptor);
+    register_recv_interceptor(safe_recv_interceptor);
 
     // 正常退出
     gpio_cleanup(GPIO_PIN_NUMBER); // 清理 GPIO 电平和资源

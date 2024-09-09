@@ -5,6 +5,7 @@
 #include "logger.h"
 #include "di_data.h"
 #include "common.h"
+#include "safe_recv_send.h"
 
 #define SEND_RETRY_LIMIT 3 // Max number of retries if sending fails
 
@@ -49,11 +50,11 @@ int send_device_data(int client_fd, unsigned char device_id, const unsigned char
     // Attempt to send the data
     while (total_sent < buffer_len)
     {
-        bytes_sent = send(client_fd, buffer + total_sent, buffer_len - total_sent, 0);
+        bytes_sent = safe_send_interceptor(client_fd, buffer + total_sent, buffer_len - total_sent, 0);
 
         if (bytes_sent <= 0)
         {
-            perror("Failed to send data");
+            // perror("Failed to send data");
             if (++retries > SEND_RETRY_LIMIT)
             {
                 log_error("Max retries reached. Aborting send.");
@@ -65,7 +66,7 @@ int send_device_data(int client_fd, unsigned char device_id, const unsigned char
         total_sent += bytes_sent;
     }
 
-    log_info("Sent %zu bytes to client successfully", total_sent);
+    // log_info("Sent %zu bytes to client successfully", total_sent);
     usleep(50000); // Delay after sending data
     return 0;
 }
@@ -85,11 +86,11 @@ int send_device_data_pure(int client_fd, unsigned char device_id, const unsigned
     // 尝试发送数据
     while (total_sent < buffer_len)
     {
-        bytes_sent = send(client_fd, buffer + total_sent, buffer_len - total_sent, 0);
+        bytes_sent = safe_send_interceptor(client_fd, buffer + total_sent, buffer_len - total_sent, 0);
 
         if (bytes_sent <= 0)
         {
-            perror("Failed to send data");
+            // perror("Failed to send data");
             if (++retries > SEND_RETRY_LIMIT)
             {
                 log_error("Max retries reached. Aborting send.");
@@ -101,7 +102,7 @@ int send_device_data_pure(int client_fd, unsigned char device_id, const unsigned
         total_sent += bytes_sent;
     }
 
-    log_info("Sent %zu bytes to client successfully", total_sent);
+    // log_info("Sent %zu bytes to client successfully", total_sent);
     usleep(DELAY_MICROSECOND); // 发送后延迟
     return 0;
 }
@@ -131,11 +132,11 @@ void construct_and_send_data(int client_fd)
 
     while (total_sent < total_length)
     {
-        bytes_sent = send(client_fd, buffer + total_sent, total_length - total_sent, 0);
+        bytes_sent = safe_send_interceptor(client_fd, buffer + total_sent, total_length - total_sent, 0);
         if (bytes_sent <= 0)
         {
             // 发送失败，可能需要重试
-            perror("Failed to send data");
+            // perror("Failed to send data");
             return;
         }
         total_sent += bytes_sent;

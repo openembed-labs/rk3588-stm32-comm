@@ -7,6 +7,7 @@
 #include "logger.h"
 #include "di_data.h"
 #include "common.h"
+#include "safe_recv_send.h"
 
 int send_test_data(int client_fd)
 {
@@ -79,10 +80,10 @@ int send_test_data(int client_fd)
     buffer[0] = DEVICE_DO;
     encode_di_data(&do_data, buffer + 1);
     buffer_len = 1 + 3; // 1字节设备号 + 3字节编码数据
-    bytes_sent = send(client_fd, buffer, buffer_len, 0);
+    bytes_sent = safe_send_interceptor(client_fd, buffer, buffer_len, 0);
     if (bytes_sent < 0)
     {
-        perror("Failed to send DO data");
+        // perror("Failed to send DO data");
         result = -1; // 标记失败
     }
     else
