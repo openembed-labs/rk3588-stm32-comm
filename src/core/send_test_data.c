@@ -8,7 +8,7 @@
 #include "di_data.h"
 #include "common.h"
 
-void send_test_data(int client_fd)
+int send_test_data(int client_fd)
 {
     // 示例数据
     const unsigned char rs485_data[] = {0x01, 0x41, 0x42}; // 示例数据
@@ -18,12 +18,15 @@ void send_test_data(int client_fd)
     // 设备数据示例
     DI_Data do_data = {DEVICE_DO, 0x01, 0x02, {0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00}};
 
+    int result = 0;
+
     // 发送RS485设备数据
     for (int i = DEVICE_RS485_1; i <= DEVICE_RS485_4; ++i)
     {
         if (send_device_data(client_fd, i, rs485_data, sizeof(rs485_data)) < 0)
         {
             log_error("Failed to send RS485 data");
+            result = -1; // 标记失败
         }
         else
         {
@@ -38,6 +41,7 @@ void send_test_data(int client_fd)
         if (send_device_data(client_fd, i, rs232_data, sizeof(rs232_data)) < 0)
         {
             log_error("Failed to send RS232 data");
+            result = -1; // 标记失败
         }
         else
         {
@@ -58,6 +62,7 @@ void send_test_data(int client_fd)
         if (send_device_data(client_fd, i, can_packet, sizeof(can_packet)) < 0)
         {
             log_error("Failed to send CAN data");
+            result = -1; // 标记失败
         }
         else
         {
@@ -78,6 +83,7 @@ void send_test_data(int client_fd)
     if (bytes_sent < 0)
     {
         perror("Failed to send DO data");
+        result = -1; // 标记失败
     }
     else
     {
@@ -85,4 +91,6 @@ void send_test_data(int client_fd)
     }
 
     usleep(DELAY_MICROSECOND);
+
+    return result;
 }

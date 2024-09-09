@@ -14,8 +14,8 @@
 #include "server_recv_send.h"
 #include "send_test_data.h"
 #include "commands.h"
-
-#define SEND_RETRY_LIMIT 3 // Max number of retries if sending fails
+#include "heartbeat.h"
+#include "gpio_control.h"
 
 void *recv_thread(void *arg);
 void *send_thread(void *arg);
@@ -30,6 +30,9 @@ void server_recv_send(int client_fd)
     // Initialize thread data
     thread_data.client_fd = client_fd;
     pthread_mutex_init(&thread_data.mutex, NULL);
+
+    // Initialize heartbeat mechanism
+    heartbeat_init(5); // 初始化心跳检测，超时为5秒
 
     // Create threads for receiving, sending, and processing commands
     pthread_create(&recv_tid, NULL, recv_thread, &thread_data);
@@ -60,8 +63,15 @@ void *recv_thread(void *arg)
         if (bytes_received <= 0)
         {
             log_error("Client disconnected or error occurred");
+            if (heartbeat_is_timeout()) // 检查是否超时
+            {
+                log_info("Heartbeat timeout. Triggering system reset.");
+                reset_stm32();
+            }
             break;
         }
+
+        heartbeat_update(); // 每次收到数据后更新心跳
 
         unsigned short device_id = buf[0];
         log_info("\nDevice ID: %02X", device_id);
@@ -69,24 +79,24 @@ void *recv_thread(void *arg)
         printf("Received data (raw): ");
         fwrite(buf, sizeof(char), bytes_received, stdout);
 
-        printf("Received data (hex): ");
+        printf("\nReceived data (hex): ");
         print_hex(buf, bytes_received);
 
-        // Process device DI data
+        // 处理 DI 数据
         if (device_id == DEVICE_DI)
         {
             handle_device_DI(buf, bytes_received, &di_data);
         }
         else
         {
-            // Process data for other devices
+            // 处理其他设备数据
             printf("Data following device ID (string): ");
             size_t data_length = bytes_received - 1;
             buf[1 + data_length] = (data_length < sizeof(buf) - 1) ? '\0' : buf[sizeof(buf) - 1];
             printf("%s\n", (char *)(buf + 1));
         }
 
-        // Prepare the response
+        // 准备响应
         pthread_mutex_lock(&data->mutex);
         snprintf(data->response, sizeof(data->response), "Message received and processed.");
         pthread_mutex_unlock(&data->mutex);
@@ -100,6 +110,7 @@ void *recv_thread(void *arg)
 void *send_thread(void *arg)
 {
     ThreadData *data = (ThreadData *)arg;
+    int retry_count = 0;
 
     while (1)
     {
@@ -107,11 +118,23 @@ void *send_thread(void *arg)
 
         if (mode_socket == SOCKET_SEND)
         {
-            send_test_data(data->client_fd);
+            if (send_test_data(data->client_fd) < 0)
+            {
+                log_error("Send test data failed, retrying...");
+                retry_count++;
+                if (retry_count >= SEND_RETRY_LIMIT)
+                {
+                    log_error("Send test data failed after multiple attempts.");
+                    break; // 超过重试限制后退出
+                }
+            }
+            else
+            {
+                retry_count = 0; // 成功发送后重置重试计数
+            }
         }
 
         pthread_mutex_unlock(&data->mutex);
-
         usleep(10000); // 每 10ms 检查一次
     }
 
@@ -135,7 +158,7 @@ void *process_command_file_thread(void *arg)
         // 等待信号量的通知
         if (sem_wait(sem) == -1)
         {
-            perror("sem_wait failed");
+            log_error("sem_wait failed");
             break;
         }
 

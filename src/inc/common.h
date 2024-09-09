@@ -21,6 +21,10 @@ typedef enum
 extern Mode mode;
 extern SocketMode mode_socket;
 
+#define GPIO_PIN "53"
+
+#define SEND_RETRY_LIMIT 3 // Max number of retries if sending fails
+
 #define COMMAND_FILE "server_command.txt"
 
 #define SEMAPHORE_NAME "/command_semaphore"

@@ -15,6 +15,10 @@
         "stdlib.h": "c",
         "send_test_data.h": "c",
         "commands.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "pthread.h": "c",
+        "heartbeat.h": "c",
+        "gpio_control.h": "c",
+        "semaphore.h": "c"
     }
 }

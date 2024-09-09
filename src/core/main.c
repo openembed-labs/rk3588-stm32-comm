@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <signal.h>
 #include <syslog.h>
 #include "logger.h"
 #include "interactive.h"
@@ -9,10 +10,14 @@
 #include "client.h"
 #include "daemonize.h"
 #include "common.h"
+#include "gpio_control.h"
 
 void parse_arguments(int argc, char *argv[], int *run_as_daemon, Mode *mode, char **server_address, int *port);
 void initialize_program(int run_as_daemon);
 void start_mode(Mode mode, const char *server_address, int port);
+void cleanup(int signum);
+
+static const char *GPIO_PIN_NUMBER = GPIO_PIN; // GPIO 引脚编号
 
 int main(int argc, char *argv[])
 {
@@ -29,7 +34,18 @@ int main(int argc, char *argv[])
 
     parse_arguments(argc, argv, &run_as_daemon, &mode, &server_address, &port);
     initialize_program(run_as_daemon);
+
+    // 初始化 GPIO
+    gpio_init_high(GPIO_PIN_NUMBER);
+
+    // 注册信号处理函数
+    signal(SIGINT, cleanup);
+    signal(SIGTERM, cleanup);
+
     start_mode(mode, server_address, port);
+
+    // 正常退出
+    gpio_cleanup(GPIO_PIN_NUMBER); // 清理 GPIO 电平和资源
 
     return 0;
 }
@@ -87,6 +103,13 @@ void initialize_program(int run_as_daemon)
         set_log_mode(LOG_MODE_CONSOLE);
     }
 
+    // 检查用户权限
+    if (geteuid() != 0)
+    {
+        log_error("Program requires root privileges to access GPIO. Please run with sudo.");
+        exit(EXIT_FAILURE); // 错误兼容处理：退出程序并提示
+    }
+
     openlog("mydaemon", LOG_PID, LOG_DAEMON);
 }
 
@@ -121,4 +144,15 @@ void start_mode(Mode mode, const char *server_address, int port)
 
     sem_unlink(SEMAPHORE_NAME);
     closelog();
+}
+
+void cleanup(int signum)
+{
+    log_info("Received signal %d, cleaning up GPIO and exiting...", signum);
+
+    // 清理 GPIO
+    gpio_cleanup(GPIO_PIN_NUMBER);
+
+    closelog();
+    exit(EXIT_SUCCESS);
 }
