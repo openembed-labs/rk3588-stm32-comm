@@ -8,6 +8,8 @@
 
 #define BUFFER_SIZE 256
 
+// TODO 增加清理指令 清理命令行IO文件 防止错误写入数据导致不可用
+
 void print_help()
 {
     printf("Usage: Command file should contain lines with the following format:\n");
@@ -48,7 +50,7 @@ void interactive_mode_main()
             // 去掉末尾的换行符
             command[strcspn(command, "\n")] = '\0';
 
-                  // 处理特殊命令
+            // 处理特殊命令
             if (strcmp(command, "/help") == 0)
             {
                 print_help();

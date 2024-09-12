@@ -38,7 +38,7 @@ size_t hex_string_to_bytes(const char *hex_str, unsigned char *buffer, size_t bu
 }
 
 // 处理特殊命令
-void process_special_command(int client_fd, const char *command)
+void process_special_command(int client_fd, const char *command, ThreadData *data)
 {
     // 检查是否是升级固件命令 "/upgrade <文件路径>"
     char *cmd = strtok(strdup(command), " ");
@@ -48,8 +48,19 @@ void process_special_command(int client_fd, const char *command)
         if (firmware_path)
         {
             printf("Upgrade firmware command received. Path: %s\n", firmware_path);
+
+            // 开始升级，设置标志
+            // pthread_mutex_lock(&data->mutex);
+            data->is_upgrading = 1; // 设置为正在升级
+            // pthread_mutex_unlock(&data->mutex);
+
             // 调用发送固件的函数
             send_firmware(client_fd, firmware_path);
+
+            // 升级完成，重置标志
+            // pthread_mutex_lock(&data->mutex);
+            data->is_upgrading = 0; // 结束升级
+            // pthread_mutex_unlock(&data->mutex);
         }
         else
         {
@@ -98,13 +109,13 @@ void process_device_command(int client_fd, const char *device_id_str, const char
 }
 
 // 解析并处理命令
-void parse_and_process_command(int client_fd, const char *command_buffer)
+void parse_and_process_command(int client_fd, const char *command_buffer, ThreadData *data)
 {
     // 检查是否是特殊命令（以 "/" 开头）
     if (command_buffer[0] == '/')
     {
         // 处理特殊命令
-        process_special_command(client_fd, command_buffer);
+        process_special_command(client_fd, command_buffer, data);
     }
     else
     {
@@ -146,7 +157,7 @@ void process_command_file(ThreadData *data)
         }
 
         // 解析并处理命令
-        parse_and_process_command(data->client_fd, command_buffer);
+        parse_and_process_command(data->client_fd, command_buffer, data);
     }
 
     // 清空文件内容

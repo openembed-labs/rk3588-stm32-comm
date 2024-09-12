@@ -47,8 +47,8 @@ int main(int argc, char *argv[])
     start_mode(mode, server_address, port);
 
     // 注册拦截器
-    register_send_interceptor(safe_send_interceptor);
-    register_recv_interceptor(safe_recv_interceptor);
+    register_send_interceptor(safe_send);
+    register_recv_interceptor(safe_recv);
 
     // 正常退出
     gpio_cleanup(GPIO_PIN_NUMBER); // 清理 GPIO 电平和资源

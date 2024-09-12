@@ -29,6 +29,7 @@ void server_recv_send(int client_fd)
 
     // Initialize thread data
     thread_data.client_fd = client_fd;
+    thread_data.is_upgrading = 0;
     pthread_mutex_init(&thread_data.mutex, NULL);
 
     // Initialize heartbeat mechanism
@@ -97,9 +98,12 @@ void *recv_thread(void *arg)
         }
 
         // 准备响应
-        pthread_mutex_lock(&data->mutex);
+        // pthread_mutex_lock(&data->mutex);
+        // snprintf(data->response, sizeof(data->response), "Message received and processed.");
+        // pthread_mutex_unlock(&data->mutex);
+
+        // 准备响应 (避免锁的使用，如果固定消息不依赖共享资源)
         snprintf(data->response, sizeof(data->response), "Message received and processed.");
-        pthread_mutex_unlock(&data->mutex);
 
         usleep(5000); // 5ms
     }
@@ -114,6 +118,13 @@ void *send_thread(void *arg)
 
     while (1)
     {
+        // 如果正在升级，则暂停发送
+        if (data->is_upgrading)
+        {
+            usleep(10000); // 休眠 10ms 后再次检查
+            continue;
+        }
+
         pthread_mutex_lock(&data->mutex);
 
         if (mode_socket == SOCKET_SEND)

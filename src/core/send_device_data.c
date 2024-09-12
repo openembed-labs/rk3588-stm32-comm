@@ -50,7 +50,7 @@ int send_device_data(int client_fd, unsigned char device_id, const unsigned char
     // Attempt to send the data
     while (total_sent < buffer_len)
     {
-        bytes_sent = safe_send_interceptor(client_fd, buffer + total_sent, buffer_len - total_sent, 0);
+        bytes_sent = safe_send(client_fd, buffer + total_sent, buffer_len - total_sent, 0);
 
         if (bytes_sent <= 0)
         {
@@ -86,7 +86,7 @@ int send_device_data_pure(int client_fd, unsigned char device_id, const unsigned
     // 尝试发送数据
     while (total_sent < buffer_len)
     {
-        bytes_sent = safe_send_interceptor(client_fd, buffer + total_sent, buffer_len - total_sent, 0);
+        bytes_sent = safe_send(client_fd, buffer + total_sent, buffer_len - total_sent, 0);
 
         if (bytes_sent <= 0)
         {
@@ -132,7 +132,7 @@ void construct_and_send_data(int client_fd)
 
     while (total_sent < total_length)
     {
-        bytes_sent = safe_send_interceptor(client_fd, buffer + total_sent, total_length - total_sent, 0);
+        bytes_sent = safe_send(client_fd, buffer + total_sent, total_length - total_sent, 0);
         if (bytes_sent <= 0)
         {
             // 发送失败，可能需要重试
