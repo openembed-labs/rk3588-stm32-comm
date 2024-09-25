@@ -13,6 +13,7 @@
 #include "gpio_control.h"
 #include "interceptor.h"
 #include "safe_recv_send.h"
+#include <asm-generic/fcntl.h>
 
 void parse_arguments(int argc, char *argv[], int *run_as_daemon, Mode *mode, char **server_address, int *port);
 void initialize_program(int run_as_daemon);
@@ -27,9 +28,9 @@ int main(int argc, char *argv[])
     char *server_address = DEFAULT_ADDRESS;
     int port = DEFAULT_PORT;
 
-    if (argc < 2 || argc > 6)
+    if (argc < 2 || argc > 7)
     {
-        fprintf(stderr, "Usage: %s <mode> [<server_address> <port>] [--daemon] [--send-test | --recv-test]\n", argv[0]);
+        fprintf(stderr, "Usage: %s <mode> [<server_address> <port>] [--daemon] [--st-ndev] [--st | --rt]\n", argv[0]);
         fprintf(stderr, "mode: 'server', 'client', or 'interactive'\n");
         exit(EXIT_FAILURE);
     }
@@ -64,11 +65,15 @@ void parse_arguments(int argc, char *argv[], int *run_as_daemon, Mode *mode, cha
         {
             *run_as_daemon = 1;
         }
-        else if (strcmp(argv[i], "--send-test") == 0)
+        else if (strcmp(argv[i], "--st-ndev") == 0)
+        {
+            mode_socket = SOCKET_ST_NDEV;
+        }
+        else if (strcmp(argv[i], "--st") == 0)
         {
             mode_socket = SOCKET_SEND;
         }
-        else if (strcmp(argv[i], "--recv-test") == 0)
+        else if (strcmp(argv[i], "--rt") == 0)
         {
             mode_socket = SOCKET_RECV;
         }

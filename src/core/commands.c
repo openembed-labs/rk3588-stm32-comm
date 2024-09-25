@@ -9,6 +9,9 @@
 #include "server_recv_send.h"
 #include "send_device_data.h"
 #include "firmware.h"
+#include "send_test_data.h"
+#include "safe_recv_send.h"
+#include "logger.h"
 
 // 转换十六进制字符串到字节数组
 size_t hex_string_to_bytes(const char *hex_str, unsigned char *buffer, size_t buffer_size)
@@ -62,11 +65,34 @@ void process_special_command(int client_fd, const char *command, ThreadData *dat
             data->is_upgrading = 0; // 结束升级
             // pthread_mutex_unlock(&data->mutex);
         }
+
         else
         {
             fprintf(stderr, "Error: No firmware path provided for upgrade command.\n");
         }
     }
+    else if (strcmp(cmd, "/st") == 0)
+    {
+        printf("Send test command received.\n");
+        // 发送十六进制指令，表示开始发送测试数据
+        const unsigned char command[] = {
+            0xAA,
+            0xAA,
+            0xAA,
+            0xAA,
+            0xAA,
+        }; // 示例指令
+
+        if (safe_send(client_fd, command, sizeof(command), 0) < 0)
+        {
+            log_error("Failed to send test command");
+            // return -1; // 标记失败
+        }
+        printf("Sent test command: ");
+        print_hex(command, sizeof(command)); // 打印发送的指令
+        send_test_data(client_fd);
+    }
+
     else
     {
         fprintf(stderr, "Error: Unrecognized special command: %s\n", cmd);

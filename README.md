@@ -23,7 +23,7 @@ This project demonstrates a TCP client-server communication setup where the RK35
 - **TCP Client**: Connects to a server and sends messages.
 - **Interactive Mode**: Provides an interactive interface for managing communication and performing upgrades.
 - **Cross-Compilation Support**: Enables cross-compilation for ARM architectures.
-- **Communication Modes**: Supports sending and receiving test modes (`--send-test` and `--recv-test`).
+- **Communication Modes**: Supports sending and receiving test modes (`--st` and `--rt`).
 - **Daemon Mode**: Allows the program to run as a daemon process.
 - **Logging**: Supports both console and syslog logging.
 - **Command File Processing**: Processes commands from a file in server mode.
@@ -73,25 +73,25 @@ sudo apt-get install build-essential
    - **Start the server program:**
 
      ```
-     ./build/combined_program server [--send-test | --recv-test] [--daemon]
+     ./build/combined_program server [--st | --rt] [--daemon]
      ```
 
    - **Run the client program in another terminal:**
 
      ```
-     ./build/combined_program client <server_address> <port> [--send-test | --recv-test] [--daemon]
+     ./build/combined_program client <server_address> <port> [--st | --rt] [--daemon]
      ```
 
    - **Options:**
 
-     - `--send-test`: Enable sending test mode.
-     - `--recv-test`: Enable receiving test mode.
+     - `--st`: Enable sending test mode.
+     - `--rt`: Enable receiving test mode.
      - `--daemon`: Run the program as a daemon.
 
    **Example:**
 
    ```sh
-   ./build/combined_program client 192.168.1.100 8080 --send-test
+   ./build/combined_program client 192.168.1.100 8080 --st
    ```
 
 ### Interactive Mode

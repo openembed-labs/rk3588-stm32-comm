@@ -15,6 +15,7 @@ typedef enum
 {
     SOCKET_RECV,
     SOCKET_SEND,
+    SOCKET_ST_NDEV,
     SOCKET_INVALID
 } SocketMode;
 
@@ -25,7 +26,7 @@ extern SocketMode mode_socket;
 
 #define SEND_RETRY_LIMIT 3 // Max number of retries if sending fails
 
-#define COMMAND_FILE "server_command.txt"
+#define COMMAND_FILE "/tmp/server_command.txt"
 
 #define SEMAPHORE_NAME "/command_semaphore"
 

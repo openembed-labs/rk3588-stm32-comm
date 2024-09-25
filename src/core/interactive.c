@@ -25,11 +25,10 @@ void print_help()
 
 void interactive_mode_main()
 {
-    // 打开已存在的命名信号量
-    sem_t *sem = sem_open(SEMAPHORE_NAME, 0);
+    sem_t *sem = sem_open(SEMAPHORE_NAME, O_CREAT, 0644, 0);
     if (sem == SEM_FAILED)
     {
-        log_error("Failed to open semaphore in interactive_mode_main.");
+        log_error("Failed to create semaphore.");
         exit(EXIT_FAILURE);
     }
 

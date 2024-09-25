@@ -5,10 +5,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "common.h"
 #include "server.h"
 #include "logger.h"
 #include "socket_utils.h"
 #include "server_recv_send.h"
+#include "send_test_data_ndev.h"
 
 void setup_server_socket(int *s_fd, const char *address, int port)
 {
@@ -81,7 +83,16 @@ void accept_connections(int s_fd)
         else if (pid == 0)
         {
             close(s_fd); // Close listening socket in child process
-            server_recv_send(c_fd);
+
+            if (mode_socket == SOCKET_ST_NDEV)
+            {
+                send_test_data_ndev(c_fd);
+            }
+            else
+            {
+                server_recv_send(c_fd);
+            }
+
             exit(0);
         }
         else

@@ -31,7 +31,8 @@ int send_test_data(int client_fd)
         }
         else
         {
-            printf("Sent RS485 data to device %02X\n", i);
+            printf("Sent RS485 data to device %02X: ", i);
+            print_hex(rs485_data, sizeof(rs485_data)); // 打印发送的RS485数据
         }
         usleep(DELAY_MICROSECOND);
     }
@@ -46,7 +47,8 @@ int send_test_data(int client_fd)
         }
         else
         {
-            printf("Sent RS232 data to device %02X\n", i);
+            printf("Sent RS232 data to device %02X: ", i);
+            print_hex(rs232_data, sizeof(rs232_data)); // 打印发送的RS232数据
         }
         usleep(DELAY_MICROSECOND);
     }
@@ -67,7 +69,8 @@ int send_test_data(int client_fd)
         }
         else
         {
-            printf("Sent CAN data to device %02X\n", i);
+            printf("Sent CAN data to device %02X: ", i);
+            print_hex(can_packet, sizeof(can_packet)); // 打印发送的CAN数据
         }
         usleep(DELAY_MICROSECOND);
     }
@@ -83,12 +86,12 @@ int send_test_data(int client_fd)
     bytes_sent = safe_send(client_fd, buffer, buffer_len, 0);
     if (bytes_sent < 0)
     {
-        // perror("Failed to send DO data");
         result = -1; // 标记失败
     }
     else
     {
-        printf("Sent DO data to device %02X\n", DEVICE_DO);
+        printf("Sent DO data to device %02X: ", DEVICE_DO);
+        print_hex(buffer, buffer_len); // 打印发送的DO数据
     }
 
     usleep(DELAY_MICROSECOND);

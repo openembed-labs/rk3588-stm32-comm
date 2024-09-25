@@ -54,7 +54,7 @@ void heartbeat_init(time_t timeout)
 void heartbeat_update()
 {
     last_received_time = time(NULL); // 更新最近一次接收数据的时间
-    printf("Heartbeat updated.\n");
+    // printf("Heartbeat updated.\n");
 }
 
 /**

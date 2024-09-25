@@ -13,6 +13,7 @@
 #include "send_device_data.h"
 #include "server_recv_send.h"
 #include "send_test_data.h"
+#include "send_test_data_ndev.h"
 #include "commands.h"
 #include "heartbeat.h"
 #include "gpio_control.h"
@@ -75,26 +76,15 @@ void *recv_thread(void *arg)
         heartbeat_update(); // 每次收到数据后更新心跳
 
         unsigned short device_id = buf[0];
+
         log_info("\nDevice ID: %02X", device_id);
-
-        printf("Received data (raw): ");
-        fwrite(buf, sizeof(char), bytes_received, stdout);
-
-        printf("\nReceived data (hex): ");
+        printf("Received data (hex): ");
         print_hex(buf, bytes_received);
 
-        // 处理 DI 数据
+        // 检查是否为接收测试指令
         if (device_id == DEVICE_DI)
         {
             handle_device_DI(buf, bytes_received, &di_data);
-        }
-        else
-        {
-            // 处理其他设备数据
-            printf("Data following device ID (string): ");
-            size_t data_length = bytes_received - 1;
-            buf[1 + data_length] = (data_length < sizeof(buf) - 1) ? '\0' : buf[sizeof(buf) - 1];
-            printf("%s\n", (char *)(buf + 1));
         }
 
         // 准备响应
@@ -114,7 +104,7 @@ void *recv_thread(void *arg)
 void *send_thread(void *arg)
 {
     ThreadData *data = (ThreadData *)arg;
-    int retry_count = 0;
+    // int retry_count = 0;
 
     while (1)
     {
@@ -127,23 +117,24 @@ void *send_thread(void *arg)
 
         pthread_mutex_lock(&data->mutex);
 
-        if (mode_socket == SOCKET_SEND)
-        {
-            if (send_test_data(data->client_fd) < 0)
-            {
-                log_error("Send test data failed, retrying...");
-                retry_count++;
-                if (retry_count >= SEND_RETRY_LIMIT)
-                {
-                    log_error("Send test data failed after multiple attempts.");
-                    break; // 超过重试限制后退出
-                }
-            }
-            else
-            {
-                retry_count = 0; // 成功发送后重置重试计数
-            }
-        }
+        // if (mode_socket == SOCKET_SEND)
+        // {
+        //     printf("Send test instruction received, sending test data...\n");
+        //     if (send_test_data_ndev(data->client_fd) < 0)
+        //     {
+        //         log_error("Send test data failed, retrying...");
+        //         retry_count++;
+        //         if (retry_count >= SEND_RETRY_LIMIT)
+        //         {
+        //             log_error("Send test data failed after multiple attempts.");
+        //             break; // 超过重试限制后退出
+        //         }
+        //     }
+        //     else
+        //     {
+        //         retry_count = 0; // 成功发送后重置重试计数
+        //     }
+        // }
 
         pthread_mutex_unlock(&data->mutex);
         usleep(10000); // 每 10ms 检查一次
