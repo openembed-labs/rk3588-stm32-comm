@@ -23,7 +23,7 @@ This project demonstrates a TCP client-server communication setup where the RK35
 - **TCP Client**: Connects to a server and sends messages.
 - **Interactive Mode**: Provides an interactive interface for managing communication and performing upgrades.
 - **Cross-Compilation Support**: Enables cross-compilation for ARM architectures.
-- **Communication Modes**: Supports sending and receiving test modes (`--st` and `--rt`).
+- **Communication Modes**: Supports sending and receiving test modes (`--st-ndev` and `--rt`).
 - **Daemon Mode**: Allows the program to run as a daemon process.
 - **Logging**: Supports both console and syslog logging.
 - **Command File Processing**: Processes commands from a file in server mode.
@@ -73,25 +73,25 @@ sudo apt-get install build-essential
    - **Start the server program:**
 
      ```
-     ./build/combined_program server [--st | --rt] [--daemon]
+     ./build/combined_program server [--st-ndev | --rt] [--daemon]
      ```
 
    - **Run the client program in another terminal:**
 
      ```
-     ./build/combined_program client <server_address> <port> [--st | --rt] [--daemon]
+     ./build/combined_program client <server_address> <port> [--st-ndev | --rt] [--daemon]
      ```
 
    - **Options:**
 
-     - `--st`: Enable sending test mode.
+     - `--st-ndev`: Enable sending test mode.
      - `--rt`: Enable receiving test mode.
      - `--daemon`: Run the program as a daemon.
 
    **Example:**
 
    ```sh
-   ./build/combined_program client 192.168.1.100 8080 --st
+   ./build/combined_program server 192.168.1.100 8080 --st-ndev
    ```
 
 ### Interactive Mode

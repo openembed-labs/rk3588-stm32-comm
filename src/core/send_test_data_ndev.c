@@ -231,7 +231,7 @@ void send_test_data_ndev(int client_fd)
         // DO 自发数据
         // print_result(DEVICE_DO, send_and_receive(client_fd, DEVICE_DO, DEVICE_DI, do_data, sizeof(do_data)), iteration, sizeof(do_data), sizeof(do_data));
 
-        // 低电平循环
+        // 高电平循环
         printf("Starting high level iteration for DO devices...\n");
         for (size_t i = 0; i < sizeof(device_do_ids) / sizeof(device_do_ids[0]); i++)
         {
@@ -239,7 +239,7 @@ void send_test_data_ndev(int client_fd)
             print_result(device_do_ids[i], send_and_receive(client_fd, device_do_ids[i], device_di_ids[i], temp, sizeof(temp)), iteration, sizeof(temp), sizeof(temp));
         }
 
-        // 高电平循环
+        // 低电平循环
         printf("\nStarting low level iteration for DO devices...\n");
         for (size_t i = 0; i < sizeof(device_do_ids) / sizeof(device_do_ids[0]); i++)
         {
