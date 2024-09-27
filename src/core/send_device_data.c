@@ -5,12 +5,15 @@
 #include "logger.h"
 #include "di_data.h"
 #include "common.h"
+#include "utils.h"
 #include "safe_recv_send.h"
 
 #define SEND_RETRY_LIMIT 3 // Max number of retries if sending fails
 
 int send_device_data(int client_fd, unsigned char device_id, const unsigned char *data, size_t data_length)
 {
+    // printf("Sending data to device %02X, data length: %zu\n", device_id, data_length);
+
     unsigned char buffer[256];
     size_t buffer_len;
     ssize_t bytes_sent = 0;
@@ -19,25 +22,19 @@ int send_device_data(int client_fd, unsigned char device_id, const unsigned char
 
     if (device_id == DEVICE_DO)
     {
-        // Handle DEVICE_DO specifically
-        DI_Data do_data;
-
-        if (data_length < 11)
-        {
-            log_error("Insufficient data length for DEVICE_DO");
-            return -1;
-        }
-
-        // Populate the DI_Data structure
-        do_data.DI = data[0];                   // First byte for DI
-        do_data.DI_9 = (data[1] & 0x01);        // Second byte's 1st bit for DI_9
-        do_data.DI_10 = (data[1] & 0x02) >> 1;  // Second byte's 2nd bit for DI_10
-        memcpy(do_data.DI_values, data + 2, 8); // Remaining 8 bytes for DI_values
 
         // Encode DI_Data into the buffer
-        encode_di_data(&do_data, buffer + 1);
-        buffer[0] = device_id;
-        buffer_len = 1 + 3; // 1 byte for device_id + 3 bytes for encoded data
+        encode_di_data(data, buffer); // 直接传递 data 数组
+        // buffer[0] = device_id;        // 设置 device_id 在 buffer 中
+        buffer_len = 3; // 1 byte for device_id + 3 bytes for encoded data
+
+        // Print the encoded data for debugging
+        printf("Encoded data: ");
+        for (size_t i = 0; i < buffer_len; i++)
+        {
+            printf("0x%02X ", buffer[i]); // Print each byte in hexadecimal format
+        }
+        printf("\n");
     }
     else
     {

@@ -5,6 +5,11 @@
 #include <errno.h>
 #include <syslog.h>
 
+// ANSI 转义码
+#define RESET_COLOR "\033[0m"
+#define INFO_COLOR "\033[36m"  // 青色
+#define ERROR_COLOR "\033[31m" // 红色
+
 static log_mode_t current_log_mode = LOG_MODE_CONSOLE;
 
 void set_log_mode(log_mode_t mode)
@@ -33,7 +38,8 @@ void log_info(const char *fmt, ...)
 
     if (current_log_mode == LOG_MODE_CONSOLE)
     {
-        printf("%s\n", buffer);
+        // 使用绿色打印 info 日志
+        printf(INFO_COLOR "%s" RESET_COLOR "\n", buffer);
     }
     else
     {
@@ -54,7 +60,8 @@ void log_error(const char *fmt, ...)
 
     if (current_log_mode == LOG_MODE_CONSOLE)
     {
-        fprintf(stderr, "ERROR: %s\n", buffer);
+        // 使用红色打印 error 日志
+        fprintf(stderr, ERROR_COLOR "ERROR: %s" RESET_COLOR "\n", buffer);
     }
     else
     {

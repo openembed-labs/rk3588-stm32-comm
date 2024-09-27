@@ -1,7 +1,9 @@
 #include "di_data.h"
 #include <stdio.h>
 #include <unistd.h>
+#include <string.h>
 #include <sys/socket.h>
+#include "common.h"
 #include "logger.h"
 
 void generate_di_data(DI_Data *data)
@@ -19,11 +21,33 @@ void generate_di_data(DI_Data *data)
     data->DI_values[7] = 8;
 }
 
-void encode_di_data(const DI_Data *data, unsigned char *buf)
+/**
+ * @brief
+ *
+ * @param data
+ * @param buf
+ * @example unsigned char do_data[10] = {0x01, 0x00, 0x01, 0x01, 0x00, 0x01, 0x01, 0x00, 0x01, 0x01};
+ *
+ */
+void encode_di_data(const unsigned char *data, unsigned char *buf)
 {
-    buf[0] = data->DI;
-    buf[1] = data->DI_9 + (data->DI_10 << 1);
-    buf[2] = data->DI_values[0] + (data->DI_values[1] << 1) + (data->DI_values[2] << 2) + (data->DI_values[3] << 3) + (data->DI_values[4] << 4) + (data->DI_values[5] << 5) + (data->DI_values[6] << 6) + (data->DI_values[7] << 7);
+    buf[0] = DEVICE_DO; // 设置设备类型
+
+    // TODO 此处DI_9 DI_10尚未完成编码
+    // 提取 DI_9 和 DI_10 并编码到 buf[1]
+    unsigned char DI_9 = (data[0] & 0x01);  // 从 data[0] 的最低位提取 DI_9
+    unsigned char DI_10 = (data[1] & 0x01); // 从 data[1] 的最低位提取 DI_10
+    buf[1] = DI_9 | (DI_10 << 1);           // 将 DI_9 和 DI_10 编码到 buf[1]
+
+    // 初始化 buf[2] 为0，准备计算后8字节的最低位的组合
+    buf[2] = 0;
+
+    // 从 data[2] 到 data[9] 提取每个字节的最低位并组合到 buf[2]
+    for (int i = 0; i < 8; i++)
+    {
+        unsigned char bit = (data[i + 2] & 0x01); // 提取每个字节的最低位
+        buf[2] |= (bit << i);                     // 将最低位组合到 buf[2]
+    }
 }
 
 void decode_di_data(const unsigned char *buf, DI_Data *data)
@@ -31,7 +55,40 @@ void decode_di_data(const unsigned char *buf, DI_Data *data)
     data->DI = buf[0];
     data->DI_9 = buf[1] & 0x01;
     data->DI_10 = (buf[1] >> 1) & 0x01;
-    data->DI_values[0] = buf[2] & 0x01;
+
+    // 从 buf[2] 读取 8 个 DI_values
+    data->DI_values[0] = (buf[2] >> 0) & 0x01;
+    data->DI_values[1] = (buf[2] >> 1) & 0x01;
+    data->DI_values[2] = (buf[2] >> 2) & 0x01;
+    data->DI_values[3] = (buf[2] >> 3) & 0x01;
+    data->DI_values[4] = (buf[2] >> 4) & 0x01;
+    data->DI_values[5] = (buf[2] >> 5) & 0x01;
+    data->DI_values[6] = (buf[2] >> 6) & 0x01;
+    data->DI_values[7] = (buf[2] >> 7) & 0x01;
+}
+
+/**
+ * @brief
+ *
+ * @param data
+ * @param buf
+ * @example DI_Data do_data = {DEVICE_DO, 0x01, 0x02, {0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00}};
+ */
+void encode_di_data_struct(const DI_Data *data, unsigned char *buf)
+{
+    buf[0] = data->DI;
+    buf[1] = data->DI_9 + (data->DI_10 << 1);
+    buf[2] = data->DI_values[0] + (data->DI_values[1] << 1) + (data->DI_values[2] << 2) + (data->DI_values[3] << 3) + (data->DI_values[4] << 4) + (data->DI_values[5] << 5) + (data->DI_values[6] << 6) + (data->DI_values[7] << 7);
+}
+
+void decode_di_data_struct(const unsigned char *buf, DI_Data *data)
+{
+    data->DI = buf[0];
+    data->DI_9 = buf[1] & 0x01;
+    data->DI_10 = (buf[1] >> 1) & 0x01;
+
+    // 从 buf[2] 读取 8 个 DI_values
+    data->DI_values[0] = (buf[2] >> 0) & 0x01;
     data->DI_values[1] = (buf[2] >> 1) & 0x01;
     data->DI_values[2] = (buf[2] >> 2) & 0x01;
     data->DI_values[3] = (buf[2] >> 3) & 0x01;
@@ -44,7 +101,7 @@ void decode_di_data(const unsigned char *buf, DI_Data *data)
 void send_di_data(int connection_fd, const DI_Data *data)
 {
     unsigned char buf[3];
-    encode_di_data(data, buf);
+    encode_di_data_struct(data, buf);
     ssize_t bytes_sent = send(connection_fd, buf, sizeof(buf), 0);
     if (bytes_sent == -1)
     {

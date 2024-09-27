@@ -81,7 +81,7 @@ int send_test_data(int client_fd)
     int bytes_sent;
 
     buffer[0] = DEVICE_DO;
-    encode_di_data(&do_data, buffer + 1);
+    encode_di_data_struct(&do_data, buffer + 1);
     buffer_len = 1 + 3; // 1字节设备号 + 3字节编码数据
     bytes_sent = safe_send(client_fd, buffer, buffer_len, 0);
     if (bytes_sent < 0)
