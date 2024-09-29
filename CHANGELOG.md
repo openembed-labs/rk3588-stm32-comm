@@ -1,5 +1,29 @@
 
 
+## [0.4.0](https://github.com/openembed-labs/rk3588-stm32-comm/compare/0.3.0...0.4.0) (2024-09-29)
+
+
+### ✨ Features | 新功能
+
+* docs & 单独线程检测文件IO ([4713bb5](https://github.com/openembed-labs/rk3588-stm32-comm/commit/4713bb5b7a0d8fb3fd7e78fbe88b4a587bcc0b14))
+* DO高低电平交替输出 ([fe88d9d](https://github.com/openembed-labs/rk3588-stm32-comm/commit/fe88d9dde7adc3da0c57c04af30e62d17ce87abb))
+* upgrade firmware STM32H750固件升级 & 新增升级指令、帮助指令 ([809ddbe](https://github.com/openembed-labs/rk3588-stm32-comm/commit/809ddbe3ee7254fb70370cf9628463e442601b53))
+* 两个程序之间使用信号量通知命令行输入扫描 ([98268ff](https://github.com/openembed-labs/rk3588-stm32-comm/commit/98268ff52cc070a26fca9cc09bf68501cefe644d))
+* 代码优化 & 收发拦截器 ([abd8466](https://github.com/openembed-labs/rk3588-stm32-comm/commit/abd84665630d0f74ea964de7c5325b289d964a5c))
+* 增加交互命令行模式 & 客户端改为多线程 ([3c2530d](https://github.com/openembed-labs/rk3588-stm32-comm/commit/3c2530d0377e8e710fc4f15588bc668b28c06ec5))
+* 增加命令行发送 代码结构调整 ([b3be851](https://github.com/openembed-labs/rk3588-stm32-comm/commit/b3be85188767824d8142e13b23ede27d97733d40))
+* 将同时多个DO口发送改完单个 ([fb9a23e](https://github.com/openembed-labs/rk3588-stm32-comm/commit/fb9a23e9346cdf9790c0b4493144bbc22fb25573))
+* 心跳检测复位 & GPIO控制 ([7bc53ff](https://github.com/openembed-labs/rk3588-stm32-comm/commit/7bc53ffceeb6458bb6f1ddcd1f6885f3895bf1f3))
+* 改变重启客户端机制 ([a1ba3e6](https://github.com/openembed-labs/rk3588-stm32-comm/commit/a1ba3e6fc4ae7c1199193fca7c7a6570a3e68218))
+* 新增ndev测试模式 ([43ec1b0](https://github.com/openembed-labs/rk3588-stm32-comm/commit/43ec1b007b64f6e6e1ffd68574b6993e2984082f))
+* 进行升级时 暂停其他传输行为 ([0c3cbb5](https://github.com/openembed-labs/rk3588-stm32-comm/commit/0c3cbb5609b672a11998fa7ef3387287ab031535))
+
+
+### 📝 Documentation | 文档
+
+* updated ([95f9352](https://github.com/openembed-labs/rk3588-stm32-comm/commit/95f9352fe37985bcc9f16c25b4d4c0776194fd60))
+* 测试相关文档 ([0de6466](https://github.com/openembed-labs/rk3588-stm32-comm/commit/0de64661897e4d55b330d0b3127f1e324cf9fea2))
+
 ## [0.3.0](https://github.com/openembed-labs/rk3588-stm32-comm/compare/0.2.0...0.3.0) (2024-08-30)
 
 
