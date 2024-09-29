@@ -26,6 +26,7 @@
         "safe_recv_send.h": "c",
         "errno.h": "c",
         "stdio.h": "c",
-        "inet.h": "c"
+        "inet.h": "c",
+        "socket_utils.h": "c"
     }
 }

@@ -15,7 +15,7 @@
 #include "send_test_data.h"
 #include "send_test_data_ndev.h"
 #include "commands.h"
-#include "heartbeat.h"
+// #include "heartbeat.h"
 #include "gpio_control.h"
 
 void *recv_thread(void *arg);
@@ -34,7 +34,7 @@ void server_recv_send(int client_fd)
     pthread_mutex_init(&thread_data.mutex, NULL);
 
     // Initialize heartbeat mechanism
-    heartbeat_init(5); // 初始化心跳检测，超时为5秒
+    // heartbeat_init(5); // 初始化心跳检测，超时为5秒
 
     // Create threads for receiving, sending, and processing commands
     pthread_create(&recv_tid, NULL, recv_thread, &thread_data);
@@ -65,15 +65,15 @@ void *recv_thread(void *arg)
         if (bytes_received <= 0)
         {
             log_error("Client disconnected or error occurred");
-            if (heartbeat_is_timeout()) // 检查是否超时
-            {
-                log_info("Heartbeat timeout. Triggering system reset.");
-                reset_stm32();
-            }
+            // if (heartbeat_is_timeout()) // 检查是否超时
+            // {
+            //     log_info("Heartbeat timeout. Triggering system reset.");
+            //     reset_stm32();
+            // }
             break;
         }
 
-        heartbeat_update(); // 每次收到数据后更新心跳
+        // heartbeat_update(); // 每次收到数据后更新心跳
 
         unsigned short device_id = buf[0];
 

@@ -11,6 +11,7 @@
 #include "socket_utils.h"
 #include "server_recv_send.h"
 #include "send_test_data_ndev.h"
+#include "gpio_control.h"
 
 void setup_server_socket(int *s_fd, const char *address, int port)
 {
@@ -58,6 +59,7 @@ void accept_connections(int s_fd)
     int c_fd;
     struct sockaddr_in client_addr;
     socklen_t len;
+    int reconnect_attempts = 0;
 
     log_info("Server waiting for connection on port: %d...", ntohs(((struct sockaddr_in *)&s_fd)->sin_port));
 
@@ -65,13 +67,22 @@ void accept_connections(int s_fd)
     {
         len = sizeof(client_addr);
         c_fd = accept(s_fd, (struct sockaddr *)&client_addr, &len);
+
         if (c_fd == -1)
         {
             log_error("Accept error");
+            reconnect_attempts++;
+            sleep(RECONNECT_TIMEOUT);
+            if (reconnect_attempts >= MAX_RECONNECT_ATTEMPTS)
+            {
+                reset_stm32();
+                reconnect_attempts = 0; // Reset after reboot
+            }
             continue;
         }
 
         log_info("Connection established with client address: %s, port: %d", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
+        reconnect_attempts = 0; // Reset attempts on successful connection
 
         pid_t pid = fork();
         if (pid < 0)
@@ -82,8 +93,7 @@ void accept_connections(int s_fd)
         }
         else if (pid == 0)
         {
-            close(s_fd); // Close listening socket in child process
-
+            close(s_fd);
             if (mode_socket == SOCKET_ST_NDEV)
             {
                 send_test_data_ndev(c_fd);
@@ -92,12 +102,11 @@ void accept_connections(int s_fd)
             {
                 server_recv_send(c_fd);
             }
-
             exit(0);
         }
         else
         {
-            close(c_fd); // Close connected socket in parent process
+            close(c_fd);
         }
     }
 }

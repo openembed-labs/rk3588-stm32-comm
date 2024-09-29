@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -123,6 +124,7 @@ int send_and_receive(int client_fd, int device_id, int expected_sender_id, const
         if (recv_buffer[0] != expected_sender_id)
         {
             log_error("Received data from unexpected device. Expected: %02X, but got: %02X", expected_sender_id, recv_buffer[0]);
+            exit(0);
             return 0; // 校验失败
         }
 
@@ -130,6 +132,7 @@ int send_and_receive(int client_fd, int device_id, int expected_sender_id, const
         if (recv_len != data_len + 1)
         {
             log_error("Data length mismatch. Expected: %zu bytes, but got: %d bytes", data_len + 1, recv_len);
+            exit(0);
             return 0; // 长度不匹配
         }
 
@@ -154,6 +157,7 @@ int send_and_receive(int client_fd, int device_id, int expected_sender_id, const
         else
         {
             log_error("Data mismatch between sent and received data");
+            exit(0);
             return 0; // 校验失败，数据不一致
         }
 
@@ -162,6 +166,7 @@ int send_and_receive(int client_fd, int device_id, int expected_sender_id, const
     }
 
     log_error("No data received from Device %02X", expected_sender_id);
+    exit(0);
     return 0; // 未收到数据
 }
 
