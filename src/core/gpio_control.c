@@ -180,14 +180,14 @@ void reset_stm32()
     if (gpio_set_direction(gpio_pin, "out") != 0) // 使用 gpio_set_direction
     {
         log_error("Error setting GPIO %s direction", gpio_pin);
-        gpio_unexport(gpio_pin); // 使用 gpio_unexport
+        gpio_unexport(gpio_pin);
         return;
     }
 
     if (gpio_set_value(gpio_pin, 0) != 0) // 使用 gpio_set_value，拉低 GPIO 引脚以触发复位
     {
         log_error("Error setting GPIO %s to low", gpio_pin);
-        gpio_unexport(gpio_pin); // 使用 gpio_unexport
+        gpio_unexport(gpio_pin);
         return;
     }
 
@@ -196,11 +196,11 @@ void reset_stm32()
     if (gpio_set_value(gpio_pin, 1) != 0) // 使用 gpio_set_value，拉高 GPIO 引脚以释放复位
     {
         log_error("Error setting GPIO %s to high", gpio_pin);
-        gpio_unexport(gpio_pin); // 使用 gpio_unexport
+        gpio_unexport(gpio_pin);
         return;
     }
 
-    if (gpio_unexport(gpio_pin) != 0) // 使用 gpio_unexport
+    if (gpio_unexport(gpio_pin) != 0)
     {
         log_error("Error unexporting GPIO %s", gpio_pin);
     }

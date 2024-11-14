@@ -47,7 +47,7 @@ const char *device_names[] = {
 // 函数声明
 void print_data_with_device(const char *label, int device_id, const unsigned char *data, size_t len);
 void print_result(int device_id, int success, int iteration, size_t sent_len, size_t recv_len);
-int send_and_receive(int client_fd, int device_id, int expected_sender_id, const unsigned char *data_to_send, size_t data_len);
+int send_and_receive(int client_fd, int device_id, int expected_sender_id, unsigned char *data_to_send, size_t data_len, int is_di_do);
 
 void print_result(int device_id, int success, int iteration, size_t sent_len, size_t recv_len)
 {
@@ -93,12 +93,25 @@ unsigned char toggle(unsigned char value)
 }
 
 // 发送和接收数据的封装函数
-int send_and_receive(int client_fd, int device_id, int expected_sender_id, const unsigned char *data_to_send, size_t data_len)
+int send_and_receive(int client_fd, int device_id, int expected_sender_id, unsigned char *data_to_send, size_t data_len, int is_di_do)
 {
     if (send_device_data(client_fd, device_id, data_to_send, data_len) < 0)
     {
         log_error("Failed to send data from Device %02X", device_id);
         return 0;
+    }
+
+    // 防止递增到0x00
+    if (is_di_do != 1)
+    {
+        if (data_to_send[1] < 0xFF)
+        {
+            data_to_send[1] += 1; // 增加数据
+        }
+        else
+        {
+            data_to_send[1] = 0x01;
+        }
     }
 
     // const char *device_name = device_names[device_id];
@@ -217,20 +230,20 @@ void send_test_data_ndev(int client_fd)
         printf("Starting iteration %d...\n", iteration);
 
         // RS485 交叉互测
-        print_result(DEVICE_RS485_1, send_and_receive(client_fd, DEVICE_RS485_1, DEVICE_RS485_2, rs485_data_1_to_2, sizeof(rs485_data_1_to_2)), iteration, sizeof(rs485_data_1_to_2), sizeof(rs485_data_1_to_2));
-        print_result(DEVICE_RS485_2, send_and_receive(client_fd, DEVICE_RS485_2, DEVICE_RS485_1, rs485_data_2_to_1, sizeof(rs485_data_2_to_1)), iteration, sizeof(rs485_data_2_to_1), sizeof(rs485_data_2_to_1));
-        print_result(DEVICE_RS485_3, send_and_receive(client_fd, DEVICE_RS485_3, DEVICE_RS485_4, rs485_data_3_to_4, sizeof(rs485_data_3_to_4)), iteration, sizeof(rs485_data_3_to_4), sizeof(rs485_data_3_to_4));
-        print_result(DEVICE_RS485_4, send_and_receive(client_fd, DEVICE_RS485_4, DEVICE_RS485_3, rs485_data_4_to_3, sizeof(rs485_data_4_to_3)), iteration, sizeof(rs485_data_4_to_3), sizeof(rs485_data_4_to_3));
+        print_result(DEVICE_RS485_1, send_and_receive(client_fd, DEVICE_RS485_1, DEVICE_RS485_2, rs485_data_1_to_2, sizeof(rs485_data_1_to_2), 0), iteration, sizeof(rs485_data_1_to_2), sizeof(rs485_data_1_to_2));
+        print_result(DEVICE_RS485_2, send_and_receive(client_fd, DEVICE_RS485_2, DEVICE_RS485_1, rs485_data_2_to_1, sizeof(rs485_data_2_to_1), 0), iteration, sizeof(rs485_data_2_to_1), sizeof(rs485_data_2_to_1));
+        print_result(DEVICE_RS485_3, send_and_receive(client_fd, DEVICE_RS485_3, DEVICE_RS485_4, rs485_data_3_to_4, sizeof(rs485_data_3_to_4), 0), iteration, sizeof(rs485_data_3_to_4), sizeof(rs485_data_3_to_4));
+        print_result(DEVICE_RS485_4, send_and_receive(client_fd, DEVICE_RS485_4, DEVICE_RS485_3, rs485_data_4_to_3, sizeof(rs485_data_4_to_3), 0), iteration, sizeof(rs485_data_4_to_3), sizeof(rs485_data_4_to_3));
         printf("\n"); // 换行
 
         // RS232 自发自测
-        print_result(DEVICE_RS232_1, send_and_receive(client_fd, DEVICE_RS232_1, DEVICE_RS232_1, rs232_data_1, sizeof(rs232_data_1)), iteration, sizeof(rs232_data_1), sizeof(rs232_data_1));
-        print_result(DEVICE_RS232_2, send_and_receive(client_fd, DEVICE_RS232_2, DEVICE_RS232_2, rs232_data_2, sizeof(rs232_data_2)), iteration, sizeof(rs232_data_2), sizeof(rs232_data_2));
+        print_result(DEVICE_RS232_1, send_and_receive(client_fd, DEVICE_RS232_1, DEVICE_RS232_1, rs232_data_1, sizeof(rs232_data_1), 0), iteration, sizeof(rs232_data_1), sizeof(rs232_data_1));
+        print_result(DEVICE_RS232_2, send_and_receive(client_fd, DEVICE_RS232_2, DEVICE_RS232_2, rs232_data_2, sizeof(rs232_data_2), 0), iteration, sizeof(rs232_data_2), sizeof(rs232_data_2));
         printf("\n"); // 换行
 
         // CAN 交叉互测
-        print_result(DEVICE_CAN_1, send_and_receive(client_fd, DEVICE_CAN_1, DEVICE_CAN_2, can_data_1_to_2, sizeof(can_data_1_to_2)), iteration, sizeof(can_data_1_to_2), sizeof(can_data_1_to_2));
-        print_result(DEVICE_CAN_2, send_and_receive(client_fd, DEVICE_CAN_2, DEVICE_CAN_1, can_data_2_to_1, sizeof(can_data_2_to_1)), iteration, sizeof(can_data_2_to_1), sizeof(can_data_2_to_1));
+        print_result(DEVICE_CAN_1, send_and_receive(client_fd, DEVICE_CAN_1, DEVICE_CAN_2, can_data_1_to_2, sizeof(can_data_1_to_2), 0), iteration, sizeof(can_data_1_to_2), sizeof(can_data_1_to_2));
+        print_result(DEVICE_CAN_2, send_and_receive(client_fd, DEVICE_CAN_2, DEVICE_CAN_1, can_data_2_to_1, sizeof(can_data_2_to_1), 0), iteration, sizeof(can_data_2_to_1), sizeof(can_data_2_to_1));
         printf("\n"); // 换行
 
         // DO 自发数据
@@ -241,7 +254,7 @@ void send_test_data_ndev(int client_fd)
         for (size_t i = 0; i < sizeof(device_do_ids) / sizeof(device_do_ids[0]); i++)
         {
             unsigned char temp[1] = {do_single_high_data[i]};
-            print_result(device_do_ids[i], send_and_receive(client_fd, device_do_ids[i], device_di_ids[i], temp, sizeof(temp)), iteration, sizeof(temp), sizeof(temp));
+            print_result(device_do_ids[i], send_and_receive(client_fd, device_do_ids[i], device_di_ids[i], temp, sizeof(temp), 1), iteration, sizeof(temp), sizeof(temp));
         }
 
         // 低电平循环
@@ -249,7 +262,7 @@ void send_test_data_ndev(int client_fd)
         for (size_t i = 0; i < sizeof(device_do_ids) / sizeof(device_do_ids[0]); i++)
         {
             unsigned char temp[1] = {do_single_low_data[i]};
-            print_result(device_do_ids[i], send_and_receive(client_fd, device_do_ids[i], device_di_ids[i], temp, sizeof(temp)), iteration, sizeof(temp), sizeof(temp));
+            print_result(device_do_ids[i], send_and_receive(client_fd, device_do_ids[i], device_di_ids[i], temp, sizeof(temp), 1), iteration, sizeof(temp), sizeof(temp));
         }
 
         sleep(1); // 暂停一秒
