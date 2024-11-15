@@ -1,5 +1,13 @@
 
 
+## [0.5.0](https://github.com/openembed-labs/rk3588-stm32-comm/compare/0.4.0...0.5.0) (2024-11-15)
+
+
+### ✨ Features | 新功能
+
+* update dec ([3c8666a](https://github.com/openembed-labs/rk3588-stm32-comm/commit/3c8666a6e143e869290bdc41a9951f41d95cd44b))
+* 优化测试 ([3ef22b4](https://github.com/openembed-labs/rk3588-stm32-comm/commit/3ef22b443e53bc7bc7d4e659325918c799a4590e))
+
 ## [0.4.0](https://github.com/openembed-labs/rk3588-stm32-comm/compare/0.3.0...0.4.0) (2024-09-29)
 
 
