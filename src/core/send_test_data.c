@@ -11,10 +11,9 @@
 
 int send_test_data(int client_fd)
 {
-    // 示例数据
-    const unsigned char rs485_data[] = {0x01, 0x41, 0x42}; // 示例数据
-    const unsigned char rs232_data[] = {0x11, 0x22, 0x33}; // 示例数据
-    const unsigned char can_data[] = {0xAA, 0xBB};         // 示例数据
+    const unsigned char rs485_data[] = {0x01, 0x41, 0x42};
+    const unsigned char rs232_data[] = {0x11, 0x22, 0x33};
+    const unsigned char can_data[] = {0xAA, 0xBB};
 
     // 设备数据示例
     DI_Data do_data = {DEVICE_DO, 0x01, 0x02, {0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00, 0xFF, 0x00}};

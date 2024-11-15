@@ -1,7 +1,6 @@
 #ifndef GPIO_CONTROL_H
 #define GPIO_CONTROL_H
 
-// 函数声明
 int gpio_export(const char *gpio_pin);
 int gpio_set_direction(const char *gpio_pin, const char *direction);
 int gpio_set_value(const char *gpio_pin, int value);

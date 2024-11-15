@@ -12,7 +12,6 @@
 
 int send_device_data(int client_fd, unsigned char device_id, const unsigned char *data, size_t data_length)
 {
-    // printf("Sending data to device %02X, data length: %zu\n", device_id, data_length);
 
     unsigned char buffer[256];
     size_t buffer_len;

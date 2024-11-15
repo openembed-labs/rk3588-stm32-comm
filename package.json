@@ -7,7 +7,6 @@
         "url": "https://github.com/openembed-labs/rk3588-stm32-comm"
     },
     "author": "Jeremy Zhou <sharebravery@gmail.com>",
-    "license": "MIT",
     "scripts": {
         "release": "release-it"
     },

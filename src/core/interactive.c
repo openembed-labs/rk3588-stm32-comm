@@ -61,7 +61,6 @@ void interactive_mode_main()
             }
             else
             {
-                // 将用户输入写入文件
                 fprintf(input_file, "%s\n", command);
                 fflush(input_file);
 

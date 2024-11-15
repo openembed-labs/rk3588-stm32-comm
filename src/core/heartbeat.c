@@ -5,7 +5,7 @@
 #include <time.h>
 #include "common.h"
 #include "heartbeat.h"
-#include "gpio_control.h" // 引入GPIO控制的头文件
+#include "gpio_control.h"
 
 volatile time_t last_received_time = 0; // 记录最近一次接收到数据的时间
 time_t timeout_interval = 5;            // 默认超时为5秒
