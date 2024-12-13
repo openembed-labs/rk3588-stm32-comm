@@ -1,9 +1,9 @@
-#include "logger.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <syslog.h>
+#include "logger.h"
 
 // ANSI 转义码
 #define RESET_COLOR "\033[0m"
